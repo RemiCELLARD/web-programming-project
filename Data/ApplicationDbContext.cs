@@ -1,13 +1,21 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Web_Programming_Project.Controllers.Utils;
+using Web_Programming_Project.Models;
 
 namespace Web_Programming_Project.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
+        private ImageManager _imageManager;
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+            _imageManager = new ImageManager();
         }
+        public DbSet<Web_Programming_Project.Models.Theme> Theme { get; set; }
+
+        public ImageManager ImgManager { get { return _imageManager; } }
     }
 }
