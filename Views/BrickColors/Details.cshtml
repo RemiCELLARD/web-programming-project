@@ -1,0 +1,35 @@
+﻿@model Web_Programming_Project.Models.BrickColor
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>BrickColor</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickColorName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickColorName)
+        </dd>
+        <dt class = "col-sm-2">
+            Color RGBA
+        </dt>
+        <dd class = "col-sm-10">
+            <div class="minicolors minicolors-theme-bootstrap minicolors-with-opacity minicolors-position-left">
+                <span class="minicolors-swatch minicolors-sprite minicolors-input-swatch">
+                    <span class="minicolors-swatch-color" style="opacity: @(Model.BrickColorAlpha); background-color: rgb(@(Model.BrickColorRed), @(Model.BrickColorGreen), @(Model.BrickColorBlue));"></span>
+                </span>
+            </div><br/>
+            <div>rgba(@(Model.BrickColorRed), @(Model.BrickColorGreen), @(Model.BrickColorBlue), @(Model.BrickColorAlpha))</div>
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

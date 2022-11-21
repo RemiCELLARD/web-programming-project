@@ -14,8 +14,11 @@ namespace Web_Programming_Project.Data
         {
             _imageManager = new ImageManager();
         }
-        public DbSet<Web_Programming_Project.Models.Theme> Theme { get; set; }
 
         public ImageManager ImgManager { get { return _imageManager; } }
+
+        public DbSet<Web_Programming_Project.Models.Theme> Theme { get; set; }
+
+        public DbSet<Web_Programming_Project.Models.BrickColor> BrickColor { get; set; }
     }
 }

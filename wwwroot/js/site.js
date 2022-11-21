@@ -16,3 +16,55 @@ function doDeleteImg() {
     $('#imgNameEdit').attr('value', "delete:" + imgName);
     $("#imgRenderView").addClass("visually-hidden");
 }
+
+$('#colorPickerInput').minicolors({
+
+    // hue, brightness, saturation, or wheel
+    control: 'hue',
+
+    // default color
+    defaultValue: '',
+
+    // hex or rgb
+    format: 'rgb',
+
+    // is inline mode?
+    inline: false,
+
+    // a comma-separated list of keywords that the control should accept (e.g. inherit, transparent, initial).
+    keywords: '',
+
+    // uppercase or lowercase
+    letterCase: 'lowercase',
+
+    // enables opacity slider
+    opacity: true,
+
+    // custom position
+    position: 'bottom left',
+
+    // additional theme class
+    theme: 'bootstrap',
+
+    // an array of colors that will show up under the main color <a href="https://www.jqueryscript.net/tags.php?/grid/">grid</a>
+    swatches: [
+        '#fff',
+        '#000',
+        '#f00',
+        '#0f0',
+        '#00f',
+        '#ff0',
+        'rgba(0,0,255,0.5)'
+    ],
+
+    change: function (value, opacity) {
+        if (!value) return;
+        if (value.startsWith('rgba')) {
+            var data = value.replace(/\s/g, '').slice(5, value.length-1).split(',');
+            $('#BrickColorRed').attr('value', data[0]);
+            $('#BrickColorGreen').attr('value', data[1]);
+            $('#BrickColorBlue').attr('value', data[2]);
+            $('#BrickColorAlpha').attr('value', opacity);
+        }
+    }
+});
