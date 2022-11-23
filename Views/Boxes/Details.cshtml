@@ -1,0 +1,48 @@
+﻿@model Web_Programming_Project.Models.Box
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Box</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BoxName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BoxName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BoxTheme)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BoxTheme.ThemeName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BoxAgeCategory)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BoxAgeCategory)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BoxImgName)
+        </dt>
+        <dd class="col-sm-10">
+            <img src="@("~/uploads/images/Boxes/"+Model.BoxImgName)" asp-append-version="true" width="150px" height="100px" />
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BoxDescription)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BoxDescription)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

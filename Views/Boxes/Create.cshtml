@@ -1,0 +1,54 @@
+﻿@using Web_Programming_Project.Data.Enum;
+@model Web_Programming_Project.Models.Box
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Box</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="BoxName" class="control-label"></label>
+                <input asp-for="BoxName" class="form-control" />
+                <span asp-validation-for="BoxName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoxThemeId" class="control-label"></label>
+                <select asp-for="BoxThemeId" class ="form-control" asp-items="ViewBag.BoxThemeId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoxDescription" class="control-label"></label>
+                <input asp-for="BoxDescription" class="form-control" />
+                <span asp-validation-for="BoxDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoxAgeCategory" class="control-label"></label>
+                <select asp-for="BoxAgeCategory" class="form-control" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>()"></select>
+                <span asp-validation-for="BoxAgeCategory" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BoxImgFile" class="control-label"></label>
+                <img asp-append-version="true" class="visually-hidden" width="125px" height="100px" id="imgRenderView" />
+                <input asp-for="BoxImgFile" class="form-control" type="file" accept="image/png,image/jpeg,image/jpg" id="imgFormInput" />
+                <span asp-validation-for="BoxImgFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

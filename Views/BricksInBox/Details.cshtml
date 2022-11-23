@@ -1,0 +1,36 @@
+﻿@model Web_Programming_Project.Models.BrickInBox
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>BrickInBox</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickInBoxBox)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickInBoxBox.Id)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickInBoxBrick)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickInBoxBrick.Id)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BrickInBoxQuantity)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BrickInBoxQuantity)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
