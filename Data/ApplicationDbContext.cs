@@ -20,5 +20,7 @@ namespace Web_Programming_Project.Data
         public DbSet<Web_Programming_Project.Models.Theme> Theme { get; set; }
 
         public DbSet<Web_Programming_Project.Models.BrickColor> BrickColor { get; set; }
+
+        public DbSet<Web_Programming_Project.Models.Brick> Brick { get; set; }
     }
 }
