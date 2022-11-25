@@ -89,8 +89,7 @@ namespace Web_Programming_Project.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (theme.ThemeImgFile != null)
-                    theme.ThemeImgName = await _context.ImgManager.UploadImage(_themeImgRoot, theme.ThemeImgFile);
+                theme.ThemeImgName = await _context.ImgManager.UploadImage(_themeImgRoot, theme.ThemeImgFile);
                 _context.Add(theme);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

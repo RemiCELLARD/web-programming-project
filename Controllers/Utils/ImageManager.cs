@@ -20,12 +20,19 @@ namespace Web_Programming_Project.Controllers.Utils
                     await fileUploadForm.CopyToAsync(fileStream);
                 }
             }
+            else
+            {
+                imgNameUpload = "default.png";
+            }
             return imgNameUpload;
         }
 
         public async Task<bool> DeleteImage(string directory, string? imgNameUpload) 
         {
             if (imgNameUpload == null)
+                return false;
+
+            if (imgNameUpload.Equals("default.png")) // do not delete the default img
                 return false;
 
             string imgPath = Path.Combine(directory, imgNameUpload);
