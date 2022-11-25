@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Web_Programming_Project.Data;
+using Web_Programming_Project.Data.Enum;
 using Web_Programming_Project.Models;
 
 namespace Web_Programming_Project.Controllers
@@ -26,10 +28,52 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Boxes
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string boxSearch = "", int boxAgeRange = -1, int boxThemeId = -1, string prevBoxSort = "down")
         {
-            var applicationDbContext = _context.Box.Include(b => b.BoxTheme);
-            return View(await applicationDbContext.ToListAsync());
+            if (Request.Query.Count == 0)
+            {
+                boxAgeRange = -1; /* Fix issue when you load Index for first time */
+            }
+
+            if (prevBoxSort.Equals("down"))
+            {
+                prevBoxSort = "up";
+            }
+            else
+            {
+                prevBoxSort = "down";
+            }
+            ViewData["prevBoxSort"] = prevBoxSort;
+            ViewData["boxSearch"] = boxSearch;
+            ViewData["boxThemeId"] = boxThemeId;
+            ViewData["boxAgeRange"] = boxAgeRange.ToString();
+
+            IQueryable<Box> result = _context.Box;
+            if (!string.IsNullOrWhiteSpace(boxSearch))
+            {
+                result = result.Where(box => box.BoxName.Contains(boxSearch));
+            }
+            if (boxAgeRange != -1)
+            {
+                result = result.Where(box => box.BoxAgeCategory.Equals((AgeCategoryEnum)boxAgeRange));
+            }
+            if (boxThemeId != -1)
+            {
+                result = result.Where(box => box.BoxThemeId.Equals(boxThemeId));
+            }
+
+            if (prevBoxSort.Equals("up"))
+            {
+                result = result.OrderBy(box => box.BoxName);
+            }
+            else
+            {
+                result = result.OrderByDescending(box => box.BoxName);
+            }
+            result = result.Include(b => b.BoxTheme);
+            ViewBag.Themes = await _context.Theme.ToListAsync();
+            return View(await result.ToListAsync());
         }
 
         // GET: Boxes/Details/5
@@ -52,6 +96,7 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Boxes/Create
+        [Authorize]
         public IActionResult Create()
         {
             ViewData["BoxThemeId"] = new SelectList(_context.Theme, "Id", "ThemeName");
@@ -61,14 +106,14 @@ namespace Web_Programming_Project.Controllers
         // POST: Boxes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxDescription")] Box box)
+        public async Task<IActionResult> Create([Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxImgFile,BoxDescription")] Box box)
         {
             if (ModelState.IsValid)
             {
-                if (box.BoxImgFile != null)
-                    box.BoxImgName = await _context.ImgManager.UploadImage(_boxImgRoot, box.BoxImgFile);
+                box.BoxImgName = await _context.ImgManager.UploadImage(_boxImgRoot, box.BoxImgFile);
                 _context.Add(box);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -78,6 +123,7 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Boxes/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Box == null)
@@ -97,9 +143,10 @@ namespace Web_Programming_Project.Controllers
         // POST: Boxes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxDescription")] Box box)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxImgFile,BoxDescription")] Box box)
         {
             if (id != box.Id)
             {
@@ -143,6 +190,7 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Boxes/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Box == null)
@@ -162,6 +210,7 @@ namespace Web_Programming_Project.Controllers
         }
 
         // POST: Boxes/Delete/5
+        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

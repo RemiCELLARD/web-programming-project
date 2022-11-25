@@ -24,7 +24,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="BoxDescription" class="control-label"></label>
-                <input asp-for="BoxDescription" class="form-control" />
+                <textarea asp-for="BoxDescription" class="form-control"></textarea>
                 <span asp-validation-for="BoxDescription" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -34,11 +34,11 @@
             </div>
             <div class="form-group">
                 <label asp-for="BoxImgFile" class="control-label"></label>
-                <img asp-append-version="true" class="visually-hidden" width="125px" height="100px" id="imgRenderView" />
+                <img asp-append-version="true" class="visually-hidden render-img m-4" id="imgRenderView" />
                 <input asp-for="BoxImgFile" class="form-control" type="file" accept="image/png,image/jpeg,image/jpg" id="imgFormInput" />
                 <span asp-validation-for="BoxImgFile" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>

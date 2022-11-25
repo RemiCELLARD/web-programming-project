@@ -31,7 +31,7 @@
             </div>
             <div class="form-group">
                 <h5>Current image</h5>
-                <img src="@("~/uploads/images/Boxes/"+Model.BoxImgName)" asp-append-version="true" width="150px" height="100px" id="imgRenderView" />
+                <img src="@("~/uploads/images/Boxes/"+Model.BoxImgName)" asp-append-version="true" class="render-img ms-2" id="imgRenderView" />
                 <input asp-for="BoxImgName" class="form-control visually-hidden" id="imgNameEdit" />
                 <input class="btn btn-primary" type="button" onclick="doDeleteImg()" value="Delete Image">
             </div>

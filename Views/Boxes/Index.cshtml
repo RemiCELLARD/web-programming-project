@@ -1,14 +1,136 @@
-﻿@model IEnumerable<Web_Programming_Project.Models.Box>
+﻿@using Web_Programming_Project.Data.Enum;
+@model IEnumerable<Web_Programming_Project.Models.Box>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Boxes";
 }
 
-<h1>Index</h1>
+<h1>Boxes</h1>
+<form method="get" asp-action="Index">
+    <div class="input-group mb-3">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-action="Create" class="btn btn-success rounded-end me-4"><i class="fa-solid fa-plus"></i> Create box</a>
+        }
+        <input type="text" name="boxSearch" value="@ViewData["boxSearch"]" class="form-control rounded-start" placeholder="Box name" aria-label="Box name" aria-describedby="button-submit-search">
+        @if (ViewData["boxThemeId"] is null)
+        {
+            <select class="form-select" name="boxThemeId" id="inputGroupSelect01" asp-items="ViewBag.Themes">
+                <option value="-1" selected>Select a theme</option>
+            </select>
+        }
+        else
+        {
+            <select class="form-select" name="boxThemeId" id="inputGroupSelect01">
+                @if ("-1".Equals(ViewData["boxThemeId"]))
+                {
+                    <option value="-1" selected>Select a theme</option>
+                }
+                else
+                {
+                    <option value="-1">Select a theme</option>
+                }
+                @foreach (Theme item in ViewBag.Themes)
+                {
+                    @if (item.Id.Equals(ViewData["boxThemeId"]))
+                    {
+                        <option value="@(item.Id)" selected>@(item.ThemeName)</option>
+                    }
+                    else
+                    {
+                        <option value="@(item.Id)">@(item.ThemeName)</option>
+                    }
+                }
+            </select>
+        }
+        
+        @if (ViewData["boxAgeRange"] is null)
+        {
+            <select class="form-select" name="boxAgeRange" id="inputGroupSelect01" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>().ToList()">
+                <option value="-1" selected>Age range</option>
+            </select>
+        }
+        else
+        {
+            <select class="form-select" name="boxAgeRange" id="inputGroupSelect01">
+                @if ("-1".Equals(ViewData["boxAgeRange"]))
+                {
+                    <option value="-1" selected>Age range</option>
+                }
+                else
+                {
+                    <option value="-1">Age range</option>
+                }
+                @foreach (SelectListItem item in Html.GetEnumSelectList<AgeCategoryEnum>())
+                {
+                    @if (item.Value.Equals(ViewData["boxAgeRange"]))
+                    {
+                        <option value="@(item.Value)" selected>@(item.Text)</option>
+                    }
+                    else
+                    {
+                        <option value="@(item.Value)">@(item.Text)</option>
+                    }
+                }
+            </select>
+        }
+        <button class="btn btn-outline-secondary rounded-end" type="submit" id="button-submit-search">Search</button>
+        <a href="/Boxes?boxSearch=@ViewData["boxSearch"]&boxAgeRange=@ViewData["boxAgeRange"]&boxThemeId=@ViewData["boxThemeId"]&boxThemeId&prevBoxSort=@ViewData["prevBoxSort"]" class="btn btn-primary rounded ms-4"><i class="fa-solid fa-sort-alpha-@ViewData["prevBoxSort"]"></i></a>
+    </div>
+</form>
+<div class="row row-cols-1 row-cols-md-4">
+@foreach (var item in Model) {
+    <div class="col">
+        <div class="card h-100 text-center">
+            <img src="@("~/uploads/images/Boxes/"+item.BoxImgName)" asp-append-version="true" class="mx-auto card-img-top render-img mt-4" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">@(item.BoxName)</h5>
+                <p class="card-text">@(item.BoxTheme.ThemeName)</p>
+            </div>
+            <div class="card-footer">
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">More informations</a>
+                @if (User.Identity.IsAuthenticated){
+                    <a asp-action="Edit" class="btn btn-warning" asp-route-id="@item.Id"><i class="fa-solid fa-pen-to-square"></i></a>
+                    <a class="btn btn-danger" onclick="openModalDeleteBox(@item.Id)"><i class="fa-solid fa-trash"></i></a>
+                }
+            </div>
+        </div>
+    </div>
+}
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<!-- Delete Popup -->
+<!-- Modal -->
+<div class="modal fade" id="modalDeleteBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDeleteBoxLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDeleteBoxLabel">Delete a box</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure to delete this box ?
+            </div>
+            <div class="modal-footer">
+                <form asp-action="Delete">
+                    <input type="hidden" name="Id" id="boxToDelete" value="-1" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" value="Delete" class="btn btn-danger" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModalDeleteBox(boxId) {
+        var modalDeleteBoxObj = new bootstrap.Modal(document.getElementById('modalDeleteBox'), {});
+        $("#boxToDelete").val(boxId);
+        modalDeleteBoxObj.show();
+    }
+</script>
+
+<!--
 <table class="table">
     <thead>
         <tr>
@@ -57,3 +179,4 @@
 }
     </tbody>
 </table>
+-->
