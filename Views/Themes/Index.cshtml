@@ -1,14 +1,52 @@
-﻿@model IEnumerable<Web_Programming_Project.Models.Theme>
+﻿@using Web_Programming_Project.Data.Enum;
+@model IEnumerable<Web_Programming_Project.Models.Theme>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Themes";
 }
 
-<h1>Index</h1>
+<h1>Themes</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form method="post" asp-action="Index">
+    <div class="input-group mb-3">
+        <input type="text" name="themeSearch" value="@ViewData["themeSearch"]" class="form-control" placeholder="Theme name" aria-label="Theme name" aria-describedby="button-submit-search">
+        @if (ViewData["themeAgeRange"] is null)
+        {
+            <select class="form-select" name="themeAgeRange" id="inputGroupSelect01" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>().ToList()">
+                <option value="-1" selected>Age range</option>
+            </select>
+        }
+        else
+        {
+            <select class="form-select" name="themeAgeRange" id="inputGroupSelect01">
+                @if ("-1".Equals(ViewData["themeAgeRange"]))
+                {
+                    <option value="-1" selected>Age range</option>
+                }
+                else
+                {
+                    <option value="-1">Age range</option>
+                }
+                @foreach (SelectListItem item in Html.GetEnumSelectList<AgeCategoryEnum>())
+                {
+                    @if (item.Value.Equals(ViewData["themeAgeRange"]))
+                    {
+                        <option value="@(item.Value)" selected>@(item.Text)</option>
+                    }
+                    else
+                    {
+                        <option value="@(item.Value)">@(item.Text)</option>
+                    }
+                }
+            </select>
+        }
+
+        <button class="btn btn-outline-secondary" type="submit" id="button-submit-search">Search</button>
+    </div>
+</form>
 <table class="table">
     <thead>
         <tr>

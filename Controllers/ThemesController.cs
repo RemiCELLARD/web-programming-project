@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Web_Programming_Project.Data;
+using Web_Programming_Project.Data.Enum;
 using Web_Programming_Project.Models;
 
 namespace Web_Programming_Project.Controllers
@@ -32,9 +33,27 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Themes
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
               return View(await _context.Theme.ToListAsync());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Index(string themeSearch, int themeAgeRange) 
+        {
+            ViewData["themeSearch"] = themeSearch;
+            ViewData["themeAgeRange"] = themeAgeRange.ToString();
+            IQueryable<Theme> result = _context.Theme;
+            if (!string.IsNullOrWhiteSpace(themeSearch))
+            {
+                result = result.Where(theme => theme.ThemeName.Contains(themeSearch));
+            }
+            if(themeAgeRange != -1)
+            {
+                result = result.Where(theme => theme.ThemeAgeCategory.Equals((AgeCategoryEnum)themeAgeRange));
+            }
+            return View(await result.ToListAsync());
         }
 
         // GET: Themes/Details/5
