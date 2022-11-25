@@ -475,3 +475,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Do not git uploads images
+wwwroot/uploads/images/Boxes
+wwwroot/uploads/images/Themes
