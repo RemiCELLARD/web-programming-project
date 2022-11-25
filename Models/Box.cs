@@ -12,7 +12,8 @@ namespace Web_Programming_Project.Models
         [Key]
         public int Id { get; set; }
 
-        [Column(TypeName = "text")]
+        [Column(TypeName = "varchar(255)")]
+        [MaxLength(255)]
         public string BoxName { get; set; }
 
         [ForeignKey(nameof(Theme))]

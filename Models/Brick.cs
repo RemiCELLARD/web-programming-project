@@ -12,7 +12,8 @@ namespace Web_Programming_Project.Models
         [Key]
         public int Id { get; set; }
 
-        [Column(TypeName = "text")]
+        [Column(TypeName = "varchar(50)")]
+        [MaxLength(50)]
         public string BrickName { get; set; }
 
         [ForeignKey(nameof(BrickColor))]
