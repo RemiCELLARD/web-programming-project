@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
@@ -34,14 +35,22 @@ namespace Web_Programming_Project.Controllers
 
         // GET: Themes
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string themeSearch = "", int themeAgeRange = -1, string prevThemeSort = "down") 
         {
-              return View(await _context.Theme.ToListAsync());
-        }
+            if (Request.Query.Count == 0)
+            {
+                themeAgeRange = -1; /* Fix issue when you load Index for first time */
+            }
 
-        [HttpPost]
-        public async Task<IActionResult> Index(string themeSearch, int themeAgeRange) 
-        {
+            if (prevThemeSort.Equals("down"))
+            {
+                prevThemeSort = "up";
+            }
+            else
+            {
+                prevThemeSort = "down";
+            }
+            ViewData["prevThemeSort"] = prevThemeSort;
             ViewData["themeSearch"] = themeSearch;
             ViewData["themeAgeRange"] = themeAgeRange.ToString();
             IQueryable<Theme> result = _context.Theme;
@@ -52,6 +61,15 @@ namespace Web_Programming_Project.Controllers
             if(themeAgeRange != -1)
             {
                 result = result.Where(theme => theme.ThemeAgeCategory.Equals((AgeCategoryEnum)themeAgeRange));
+            }
+
+            if (prevThemeSort.Equals("up"))
+            {
+                result = result.OrderBy(theme => theme.ThemeName);
+            }
+            else
+            {
+                result = result.OrderByDescending(theme => theme.ThemeName);
             }
             return View(await result.ToListAsync());
         }
@@ -75,6 +93,7 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Themes/Create
+        [Authorize]
         public IActionResult Create()
         {
             return View();
@@ -83,6 +102,7 @@ namespace Web_Programming_Project.Controllers
         // POST: Themes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ThemeName,ThemeDescription,ThemeImgFile,ThemeAgeCategory")] Theme theme)
@@ -98,6 +118,7 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Themes/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Theme == null)
@@ -116,6 +137,7 @@ namespace Web_Programming_Project.Controllers
         // POST: Themes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ThemeName,ThemeDescription,ThemeImgName,ThemeImgFile,ThemeAgeCategory")] Theme theme)
@@ -161,6 +183,7 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Themes/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Theme == null)
@@ -179,6 +202,7 @@ namespace Web_Programming_Project.Controllers
         }
 
         // POST: Themes/Delete/5
+        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -198,6 +222,11 @@ namespace Web_Programming_Project.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Theme exist ?
+        /// </summary>
+        /// <param name="id">Id of the Theme</param>
+        /// <returns>Existence of the Theme in DB</returns>
         private bool ThemeExists(int id)
         {
           return _context.Theme.Any(e => e.Id == id);

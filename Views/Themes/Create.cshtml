@@ -20,12 +20,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="ThemeDescription" class="control-label"></label>
-                <input asp-for="ThemeDescription" class="form-control" />
+                <textarea asp-for="ThemeDescription" class="form-control"></textarea>
                 <span asp-validation-for="ThemeDescription" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ThemeImgFile" class="control-label"></label>
-                <img asp-append-version="true" class="visually-hidden" width="125px" height="100px" id="imgRenderView" />
+                <img asp-append-version="true" class="visually-hidden render-img ms-2" id="imgRenderView" />
                 <input asp-for="ThemeImgFile" class="form-control" type="file" accept="image/png,image/jpeg,image/jpg" id="imgFormInput" />
                 <span asp-validation-for="ThemeImgFile" class="text-danger"></span>
             </div>
@@ -34,7 +34,7 @@
                 <select asp-for="ThemeAgeCategory" class="form-select" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>()"></select>
                 <span asp-validation-for="ThemeAgeCategory" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>

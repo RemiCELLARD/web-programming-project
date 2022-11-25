@@ -6,13 +6,13 @@
 }
 
 <h1>Themes</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<form method="post" asp-action="Index">
+<form method="get" asp-action="Index">
     <div class="input-group mb-3">
-        <input type="text" name="themeSearch" value="@ViewData["themeSearch"]" class="form-control" placeholder="Theme name" aria-label="Theme name" aria-describedby="button-submit-search">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-action="Create" class="btn btn-success rounded-end me-4"><i class="fa-solid fa-plus"></i> Create theme</a>
+        }
+        <input type="text" name="themeSearch" value="@ViewData["themeSearch"]" class="form-control rounded-start" placeholder="Theme name" aria-label="Theme name" aria-describedby="button-submit-search">
         @if (ViewData["themeAgeRange"] is null)
         {
             <select class="form-select" name="themeAgeRange" id="inputGroupSelect01" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>().ToList()">
@@ -43,49 +43,73 @@
                 }
             </select>
         }
-
-        <button class="btn btn-outline-secondary" type="submit" id="button-submit-search">Search</button>
+        <button class="btn btn-outline-secondary rounded-end" type="submit" id="button-submit-search">Search</button>
+        <a href="/Themes?themeSearch=@ViewData["themeSearch"]&themeAgeRange=@ViewData["themeAgeRange"]&prevThemeSort=@ViewData["prevThemeSort"]" class="btn btn-primary rounded ms-4"><i class="fa-solid fa-sort-alpha-@ViewData["prevThemeSort"]"></i></a>
     </div>
 </form>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ThemeName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ThemeDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ThemeImgName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ThemeAgeCategory)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ThemeName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ThemeDescription)
-            </td>
-            <td>
-                <img src="@("~/uploads/images/Themes/"+item.ThemeImgName)" asp-append-version="true" width="150px" height="100px" />
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ThemeAgeCategory)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div id="list-theme">
+    @if (Model.Count() == 0)
+    {
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Ooopppss !</h4>
+            <p>No theme found in database</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            <div class="card mt-3" >
+                <div class="row g-0">
+                    <div class="d-flex align-items-center ps-3 pt-3 pb-3">
+                        <div class="flex-shrink-0 media-img-lego">
+                            <img src="@("~/uploads/images/Themes/"+item.ThemeImgName)" asp-append-version="true" class="img-fluid rounded" alt="...">
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title">@Html.DisplayFor(modelItem => item.ThemeName)</h5>
+                            <p class="card-text">@Html.DisplayFor(modelItem => item.ThemeDescription)</p>
+                            <p class="card-text">
+                                <a href="/Boxes?theme_id=${e[0]}" class="btn btn-primary">View associated boxes</a>
+                                @if (User.Identity.IsAuthenticated){
+                                    <a asp-action="Edit" class="btn btn-warning" asp-route-id="@item.Id"><i class="fa-solid fa-pen-to-square"></i></a>
+                                    <a class="btn btn-danger" onclick="openModalDeleteTheme(@item.Id)"><i class="fa-solid fa-trash"></i></a>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- Delete Popup -->
+<!-- Modal -->
+<div class="modal fade" id="modalDeleteTheme" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDeleteThemeLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDeleteThemeLabel">Delete a theme</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure to delete this theme ?
+            </div>
+            <div class="modal-footer">
+                <form asp-action="Delete">
+                    <input type="hidden" name="Id" id="themeToDelete" value="-1" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" value="Delete" class="btn btn-danger" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModalDeleteTheme(themeId) {
+        var modalDeleteThemeObj = new bootstrap.Modal(document.getElementById('modalDeleteTheme'), {});
+        $("#themeToDelete").val(themeId);
+        modalDeleteThemeObj.show();
+    }
+</script>

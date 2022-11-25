@@ -26,9 +26,9 @@
             </div>
             <div class="form-group">
                 <h5>Current image</h5>
-                <img src="@("~/uploads/images/Themes/"+Model.ThemeImgName)" asp-append-version="true" width="150px" height="100px" id="imgRenderView" />
+                <img src="@("~/uploads/images/Themes/"+Model.ThemeImgName)" asp-append-version="true" class="render-img ms-2" id="imgRenderView" />
                 <input asp-for="ThemeImgName" class="form-control visually-hidden" id="imgNameEdit" />
-                <input class="btn btn-primary" type="button" onclick="doDeleteImg()" value="Delete Image">
+                <button class="btn btn-danger" type="button" onclick="doDeleteImg()"><i class="fa-solid fa-trash"></i></button>
             </div>
             <div class="form-group">
                 <label asp-for="ThemeImgFile" class="control-label"></label>
@@ -40,7 +40,7 @@
                 <select asp-for="ThemeAgeCategory" class="form-select" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>()"></select>
                 <span asp-validation-for="ThemeAgeCategory" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>

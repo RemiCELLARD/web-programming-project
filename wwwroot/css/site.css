@@ -16,3 +16,18 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.card-lego-box {
+    border: none;
+}
+
+.media-img-lego {
+    width: 180px;
+}
+.media-img-lego > img,
+.render-img {
+    min-height: 120px;
+    max-height: 180px;
+    min-width: 120px;
+    max-width: 180px;
+}
