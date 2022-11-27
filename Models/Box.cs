@@ -13,18 +13,26 @@ namespace Web_Programming_Project.Models
         public int Id { get; set; }
 
         [Column(TypeName = "varchar(255)")]
+        [DisplayName("Name")]
         [MaxLength(255)]
+        [Required]
         public string BoxName { get; set; }
 
         [ForeignKey(nameof(Theme))]
+        [DisplayName("Theme")]
+        [Required]
         public int BoxThemeId { get; set; }
 
+        [DisplayName("Theme")]
         public virtual Theme? BoxTheme { get; set; }
 
         [EnumDataType(typeof(AgeCategoryEnum))]
+        [DisplayName("Age Category")]
+        [Required]
         public AgeCategoryEnum BoxAgeCategory { get; set; }
 
         [Column(TypeName = "text")]
+        [DisplayName("Image")]
         public string? BoxImgName { get; set; }
 
         [NotMapped]
@@ -32,6 +40,8 @@ namespace Web_Programming_Project.Models
         public IFormFile? BoxImgFile { get; set; }
 
         [Column(TypeName = "text")]
+        [DisplayName("Description")]
+        [Required]
         public string BoxDescription { get; set; }
 
         [NotMapped]
