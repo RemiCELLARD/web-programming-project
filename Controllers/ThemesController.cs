@@ -34,20 +34,16 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Themes
-        public async Task<IActionResult> Index(string themeSearch = "", int themeAgeRange = -1, string prevThemeSort = "up") 
+        public async Task<IActionResult> Index(string themeSearch = "", int themeAgeRange = 0, string prevThemeSort = "up") 
         {
-            if (Request.Query.Count == 0)
-            {
-                themeAgeRange = -1; /* Fix issue when you load Index for first time */
-            }
             ViewData["prevThemeSort"] = prevThemeSort;
             ViewData["themeSearch"] = themeSearch;
             ViewData["themeAgeRange"] = themeAgeRange.ToString();
             return View(await GetThemeAsync(themeSearch, themeAgeRange, prevThemeSort));
         }
 
-        // GET: Themes
-        public async Task<IActionResult> Search(string themeSearch = "", int themeAgeRange = -1, string prevThemeSort = "up")
+        // GET: Themes/Search
+        public async Task<IActionResult> Search(string themeSearch = "", int themeAgeRange = 0, string prevThemeSort = "up")
         {
             return PartialView("_ThemesCard", await GetThemeAsync(themeSearch, themeAgeRange, prevThemeSort));
         }
@@ -196,14 +192,14 @@ namespace Web_Programming_Project.Controllers
         /// <param name="themeAgeRange">Age range</param>
         /// <param name="prevThemeSort">Sorting (A-Z or Z-A)</param>
         /// <returns></returns>
-        private async Task<List<Theme>> GetThemeAsync(string themeSearch = "", int themeAgeRange = -1, string prevThemeSort = "down")
+        private async Task<List<Theme>> GetThemeAsync(string themeSearch = "", int themeAgeRange = 0, string prevThemeSort = "down")
         {
             IQueryable<Theme> result = _context.Theme;
             if (!string.IsNullOrWhiteSpace(themeSearch))
             {
                 result = result.Where(theme => theme.ThemeName.Contains(themeSearch));
             }
-            if (themeAgeRange != -1)
+            if (themeAgeRange != 0)
             {
                 result = result.Where(theme => theme.ThemeAgeCategory.Equals((AgeCategoryEnum)themeAgeRange));
             }

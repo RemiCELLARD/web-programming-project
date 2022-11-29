@@ -15,19 +15,19 @@
     @if (ViewData["themeAgeRange"] is null)
     {
         <select onchange="onSearchUpdate()" class="form-select rounded-end" name="themeAgeRange" id="inputGroupSelect01" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>().ToList()">
-            <option value="-1" selected>Age range</option>
+            <option value="0" selected>Age range</option>
         </select>
     }
     else
     {
         <select onchange="onSearchUpdate()" class="form-select rounded-end" name="themeAgeRange" id="inputGroupSelect01">
-            @if ("-1".Equals(ViewData["themeAgeRange"]))
+            @if ("0".Equals(ViewData["themeAgeRange"]))
             {
-                <option value="-1" selected>Age range</option>
+                <option value="0" selected>Age range</option>
             }
             else
             {
-                <option value="-1">Age range</option>
+                <option value="0">Age range</option>
             }
             @foreach (SelectListItem item in Html.GetEnumSelectList<AgeCategoryEnum>())
             {
