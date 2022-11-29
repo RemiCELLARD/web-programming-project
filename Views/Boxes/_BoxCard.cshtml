@@ -1,0 +1,22 @@
+﻿@model Box
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="col" id="boxCard@(Model.Id)">
+    <div class="card h-100 text-center">
+        <img id="boxImg@(Model.Id)" src="@("~/uploads/images/Boxes/"+Model.BoxImgName)" asp-append-version="true" class="mx-auto card-img-top render-img mt-4" alt="...">
+        <div class="card-body">
+            <h5 class="card-title" id="boxName@(Model.Id)" >@(Model.BoxName)</h5>
+            <h6 class="card-subtitle mb-2 text-muted" id="boxAgeCategory@(Model.Id)"><i class="fa-solid fa-cake-candles"></i> @Html.DisplayFor(modelItem => Model.BoxAgeCategory)</h6>
+            <p class="card-text" id="boxThemeName@(Model.Id)">@(Model?.BoxTheme?.ThemeName)</p>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Details" asp-route-id="@(Model.Id)" class="btn btn-primary">More informations</a>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a asp-action="Edit" class="btn btn-warning" asp-route-id="@Model.Id"><i class="fa-solid fa-pen-to-square"></i></a>
+                <a class="btn btn-danger" onclick="openModalDeleteBox(@Model.Id)"><i class="fa-solid fa-trash"></i></a>
+            }
+        </div>
+    </div>
+</div>

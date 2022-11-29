@@ -6,103 +6,83 @@
 }
 
 <h1>Boxes</h1>
-<form method="get" asp-action="Index">
-    <div class="input-group mb-3">
-        @if (User.Identity.IsAuthenticated)
-        {
-            <a asp-action="Create" class="btn btn-success rounded-end me-4"><i class="fa-solid fa-plus"></i> Create box</a>
-        }
-        <input type="text" name="boxSearch" value="@ViewData["boxSearch"]" class="form-control rounded-start" placeholder="Box name" aria-label="Box name" aria-describedby="button-submit-search">
-        @if (ViewData["boxThemeId"] is null)
-        {
-            <select class="form-select" name="boxThemeId" id="inputGroupSelect01" asp-items="ViewBag.Themes">
+<div class="input-group mb-3">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a asp-action="Create" class="btn btn-success rounded-end me-4"><i class="fa-solid fa-plus"></i> Create box</a>
+    }
+    <input type="text" oninput="onSearchUpdate()" name="boxSearch" value="@ViewData["boxSearch"]" class="form-control rounded-start" placeholder="Box name" aria-label="Box name" aria-describedby="button-submit-search">
+    @if (ViewData["boxThemeId"] is null)
+    {
+        <select onchange="onSearchUpdate()" class="form-select" name="boxThemeId" id="inputGroupSelect01" asp-items="ViewBag.Themes">
+            <option value="-1" selected>Select a theme</option>
+        </select>
+    }
+    else
+    {
+        <select onchange="onSearchUpdate()" class="form-select" name="boxThemeId" id="inputGroupSelect01">
+            @if ("-1".Equals(ViewData["boxThemeId"]))
+            {
                 <option value="-1" selected>Select a theme</option>
-            </select>
-        }
-        else
-        {
-            <select class="form-select" name="boxThemeId" id="inputGroupSelect01">
-                @if ("-1".Equals(ViewData["boxThemeId"]))
+            }
+            else
+            {
+                <option value="-1">Select a theme</option>
+            }
+            @foreach (Theme item in ViewBag.Themes)
+            {
+                @if (item.Id.Equals(ViewData["boxThemeId"]))
                 {
-                    <option value="-1" selected>Select a theme</option>
+                    <option value="@(item.Id)" selected>@(item.ThemeName)</option>
                 }
                 else
                 {
-                    <option value="-1">Select a theme</option>
+                    <option value="@(item.Id)">@(item.ThemeName)</option>
                 }
-                @foreach (Theme item in ViewBag.Themes)
+            }
+        </select>
+    }
+
+    @if (ViewData["boxAgeRange"] is null)
+    {
+        <select onchange="onSearchUpdate()" class="form-select rounded-end" name="boxAgeRange" id="inputGroupSelect02" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>().ToList()">
+            <option value="0" selected>Age range</option>
+        </select>
+    }
+    else
+    {
+        <select onchange="onSearchUpdate()" class="form-select rounded-end" name="boxAgeRange" id="inputGroupSelect02">
+            @if ("0".Equals(ViewData["boxAgeRange"]))
+            {
+                <option value="0" selected>Age range</option>
+            }
+            else
+            {
+                <option value="0">Age range</option>
+            }
+            @foreach (SelectListItem item in Html.GetEnumSelectList<AgeCategoryEnum>())
+            {
+                @if (item.Value.Equals(ViewData["boxAgeRange"]))
                 {
-                    @if (item.Id.Equals(ViewData["boxThemeId"]))
-                    {
-                        <option value="@(item.Id)" selected>@(item.ThemeName)</option>
-                    }
-                    else
-                    {
-                        <option value="@(item.Id)">@(item.ThemeName)</option>
-                    }
-                }
-            </select>
-        }
-        
-        @if (ViewData["boxAgeRange"] is null)
-        {
-            <select class="form-select" name="boxAgeRange" id="inputGroupSelect01" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>().ToList()">
-                <option value="-1" selected>Age range</option>
-            </select>
-        }
-        else
-        {
-            <select class="form-select" name="boxAgeRange" id="inputGroupSelect01">
-                @if ("-1".Equals(ViewData["boxAgeRange"]))
-                {
-                    <option value="-1" selected>Age range</option>
+                    <option value="@(item.Value)" selected>@(item.Text)</option>
                 }
                 else
                 {
-                    <option value="-1">Age range</option>
+                    <option value="@(item.Value)">@(item.Text)</option>
                 }
-                @foreach (SelectListItem item in Html.GetEnumSelectList<AgeCategoryEnum>())
-                {
-                    @if (item.Value.Equals(ViewData["boxAgeRange"]))
-                    {
-                        <option value="@(item.Value)" selected>@(item.Text)</option>
-                    }
-                    else
-                    {
-                        <option value="@(item.Value)">@(item.Text)</option>
-                    }
-                }
-            </select>
-        }
-        <button class="btn btn-outline-secondary rounded-end" type="submit" id="button-submit-search">Search</button>
-        <a href="/Boxes?boxSearch=@ViewData["boxSearch"]&boxAgeRange=@ViewData["boxAgeRange"]&boxThemeId=@ViewData["boxThemeId"]&boxThemeId&prevBoxSort=@ViewData["prevBoxSort"]" class="btn btn-primary rounded ms-4"><i class="fa-solid fa-sort-alpha-@ViewData["prevBoxSort"]"></i></a>
-    </div>
-</form>
-<div class="row row-cols-1 row-cols-md-4">
-@foreach (var item in Model) {
-    <div class="col">
-        <div class="card h-100 text-center">
-            <img src="@("~/uploads/images/Boxes/"+item.BoxImgName)" asp-append-version="true" class="mx-auto card-img-top render-img mt-4" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">@(item.BoxName)</h5>
-                <p class="card-text">@(item.BoxTheme.ThemeName)</p>
-            </div>
-            <div class="card-footer">
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">More informations</a>
-                @if (User.Identity.IsAuthenticated){
-                    <a asp-action="Edit" class="btn btn-warning" asp-route-id="@item.Id"><i class="fa-solid fa-pen-to-square"></i></a>
-                    <a class="btn btn-danger" onclick="openModalDeleteBox(@item.Id)"><i class="fa-solid fa-trash"></i></a>
-                }
-            </div>
-        </div>
-    </div>
-}
+            }
+        </select>
+    }
+    <button id="prevBoxSort" onclick="sortSearch()" value="@ViewData["prevBoxSort"]" class="btn btn-primary rounded ms-4"><i id="prevBoxSortIcon" class="fa-solid fa-sort-alpha-@ViewData["prevBoxSort"]"></i></button>
+</div>
+<div class="row row-cols-1 row-cols-md-4" id="list-boxes">
+    <partial name="_BoxesCard" model="Model"/>
 </div>
 
 <!-- Delete Popup -->
 <!-- Modal -->
 <div class="modal fade" id="modalDeleteBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDeleteBoxLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalDeleteBoxLabel">Delete a box</h5>
@@ -110,73 +90,116 @@
             </div>
             <div class="modal-body">
                 Are you sure to delete this box ?
+                <br/>
+                <div class="card mt-3 h-100 text-center">
+                    <img id="modalDeleteBoxImg" src="/uploads/images/Boxes/default.png" class="mx-auto card-img-top render-img mt-4" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title" id="modalDeleteBoxName">Name</h5>
+                        <h6 class="card-subtitle mb-2 text-muted" id="modalDeleteBoxAgeCategory"></h6>
+                        <p class="card-text" id="modalDeleteBoxThemeName"></p>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <form asp-action="Delete">
-                    <input type="hidden" name="Id" id="boxToDelete" value="-1" />
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <input type="submit" value="Delete" class="btn btn-danger" />
-                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" onclick="onDeleteRequest()" name="deleteBoxAction" value="-1" class="btn btn-danger">Delete</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    var modalDeleteBoxObj = null;
+
     function openModalDeleteBox(boxId) {
-        var modalDeleteBoxObj = new bootstrap.Modal(document.getElementById('modalDeleteBox'), {});
-        $("#boxToDelete").val(boxId);
+        if (modalDeleteBoxObj == null) {
+            modalDeleteBoxObj = new bootstrap.Modal(document.getElementById('modalDeleteBox'), {});
+        }
+        const boxInfo = {
+            id: boxId,
+            boxName: $(`#boxName${boxId}`).text(),
+            boxImg: $(`#boxImg${boxId}`).attr('src'),
+            boxAgeCategory: $(`#boxAgeCategory${boxId}`).html(),
+            boxThemeName: $(`#boxThemeName${boxId}`).text(),
+        }
+        
+        /* Fill the informations and show it */
+        $("#modalDeleteBoxLabel").text(`Delete ${boxInfo['boxName']}`);
+        $("#modalDeleteBoxName").text(boxInfo['boxName']);
+        $("#modalDeleteBoxAgeCategory").html(boxInfo['boxAgeCategory']);
+        $("#modalDeleteBoxThemeName").text(boxInfo['boxThemeName']);
+        $("#modalDeleteBoxImg").attr('src',boxInfo['boxImg']);
+        $('button[name="deleteBoxAction"]').val(boxId);
         modalDeleteBoxObj.show();
     }
-</script>
 
-<!--
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.BoxName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BoxTheme)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BoxAgeCategory)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BoxImgName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BoxDescription)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.BoxName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BoxTheme.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BoxAgeCategory)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BoxImgName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BoxDescription)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
--->
+    function sortSearch() {
+        /* Switch the state of the button */
+        if ($('#prevBoxSortIcon').hasClass('fa-sort-alpha-down')) {
+            $('#prevBoxSortIcon').removeClass('fa-sort-alpha-down').addClass('fa-sort-alpha-up');
+            $('#prevBoxSort').val("up");
+        } else {
+            $('#prevBoxSortIcon').removeClass('fa-sort-alpha-up').addClass('fa-sort-alpha-down');
+            $('#prevBoxSort').val("down");
+        }
+        onSearchUpdate();
+    }
+
+    function onDeleteRequest() {
+        var boxId = $('button[name="deleteBoxAction"]').val();
+        
+        /* Check for bad data */
+        if (isNaN(boxId) || boxId == "") { return; }
+        boxId = Number(boxId);
+        if (boxId == -1) { return; }
+
+        /* Ajax Request */
+        $.ajax({
+            url: "/Boxes/DeleteAjaxConfirmed",
+            type: "POST",
+            data: {
+                id: boxId
+            },
+            success: function (data) {
+                $(`#boxCard${boxId}`).remove();
+            },
+            error: function (err) {
+                $(`#boxCard${boxId}`).remove();
+            }
+        });
+        $('button[name="deleteBoxAction"]').val(-1);
+        modalDeleteBoxObj.hide();
+    }
+
+    function onSearchUpdate() {
+        /* Data in the input */
+        var dataBoxSearch = $('input[name="boxSearch"]').val();
+        var dataBoxAgeRange = $('select[name="boxAgeRange"]').val();
+        var dataBoxThemeId = $('select[name="boxThemeId"]').val();
+        var dataPrevBoxSort = $('#prevBoxSort').val();
+        const dataSearch = {
+            boxSearch: dataBoxSearch,
+            boxAgeRange: dataBoxAgeRange,
+            boxThemeId: dataBoxThemeId,
+            prevBoxSort: dataPrevBoxSort
+        };
+
+        /* Ajax Request */
+        $.ajax({
+            url: "/Boxes/Search",
+            type: "GET",
+            data: dataSearch,
+            success : function (data) {
+                $("#list-boxes").html(data);
+            },
+            error : function (err) {
+                $("#list-theme").html(`
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">Ooopppss !</h4>
+                        <p>Error with the server... Please try again later.</p>
+                    </div>
+                `);
+            }
+        });
+    }
+</script>

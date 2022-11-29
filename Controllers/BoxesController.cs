@@ -29,51 +29,20 @@ namespace Web_Programming_Project.Controllers
 
         // GET: Boxes
         [HttpGet]
-        public async Task<IActionResult> Index(string boxSearch = "", int boxAgeRange = -1, int boxThemeId = -1, string prevBoxSort = "down")
+        public async Task<IActionResult> Index(string boxSearch = "", int boxAgeRange = 0, int boxThemeId = -1, string prevBoxSort = "up")
         {
-            if (Request.Query.Count == 0)
-            {
-                boxAgeRange = -1; /* Fix issue when you load Index for first time */
-            }
-
-            if (prevBoxSort.Equals("down"))
-            {
-                prevBoxSort = "up";
-            }
-            else
-            {
-                prevBoxSort = "down";
-            }
             ViewData["prevBoxSort"] = prevBoxSort;
             ViewData["boxSearch"] = boxSearch;
             ViewData["boxThemeId"] = boxThemeId;
             ViewData["boxAgeRange"] = boxAgeRange.ToString();
-
-            IQueryable<Box> result = _context.Box;
-            if (!string.IsNullOrWhiteSpace(boxSearch))
-            {
-                result = result.Where(box => box.BoxName.Contains(boxSearch));
-            }
-            if (boxAgeRange != -1)
-            {
-                result = result.Where(box => box.BoxAgeCategory.Equals((AgeCategoryEnum)boxAgeRange));
-            }
-            if (boxThemeId != -1)
-            {
-                result = result.Where(box => box.BoxThemeId.Equals(boxThemeId));
-            }
-
-            if (prevBoxSort.Equals("up"))
-            {
-                result = result.OrderBy(box => box.BoxName);
-            }
-            else
-            {
-                result = result.OrderByDescending(box => box.BoxName);
-            }
-            result = result.Include(b => b.BoxTheme);
             ViewBag.Themes = await _context.Theme.ToListAsync();
-            return View(await result.ToListAsync());
+            return View(await GetBoxAsync(boxSearch, boxAgeRange, boxThemeId, prevBoxSort));
+        }
+
+        // GET: Boxes/Search
+        public async Task<IActionResult> Search(string boxSearch = "", int boxAgeRange = 0, int boxThemeId = -1, string prevBoxSort = "up")
+        {
+            return PartialView("_BoxesCard", await GetBoxAsync(boxSearch, boxAgeRange, boxThemeId, prevBoxSort));
         }
 
         // GET: Boxes/Details/5
@@ -189,31 +158,10 @@ namespace Web_Programming_Project.Controllers
             return View(box);
         }
 
-        // GET: Boxes/Delete/5
-        [Authorize]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Box == null)
-            {
-                return NotFound();
-            }
-
-            var box = await _context.Box
-                .Include(b => b.BoxTheme)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (box == null)
-            {
-                return NotFound();
-            }
-
-            return View(box);
-        }
-
         // POST: Boxes/Delete/5
         [Authorize]
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [HttpPost]
+        public async Task<IActionResult> DeleteAjaxConfirmed(int id)
         {
             if (_context.Box == null)
             {
@@ -227,12 +175,53 @@ namespace Web_Programming_Project.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return StatusCode(200);
         }
 
+        /// <summary>
+        /// If the box exist in database
+        /// </summary>
+        /// <param name="id">Id of the box</param>
+        /// <returns></returns>
         private bool BoxExists(int id)
         {
           return _context.Box.Any(e => e.Id == id);
+        }
+
+        /// <summary>
+        /// Get list of boxes based on filters
+        /// </summary>
+        /// <param name="boxSearch">Name of the boxes</param>
+        /// <param name="boxAgeRange">Age range for boxes</param>
+        /// <param name="boxThemeId">ThemeId of the boxes</param>
+        /// <param name="prevBoxSort">Sort order</param>
+        /// <returns>List of boxes</returns>
+        private async Task<List<Box>> GetBoxAsync(string boxSearch = "", int boxAgeRange = 0, int boxThemeId = -1, string prevBoxSort = "up")
+        {
+            IQueryable<Box> result = _context.Box;
+            if (!string.IsNullOrWhiteSpace(boxSearch))
+            {
+                result = result.Where(box => box.BoxName.Contains(boxSearch));
+            }
+            if (boxAgeRange != 0)
+            {
+                result = result.Where(box => box.BoxAgeCategory.Equals((AgeCategoryEnum)boxAgeRange));
+            }
+            if (boxThemeId != -1)
+            {
+                result = result.Where(box => box.BoxThemeId.Equals(boxThemeId));
+            }
+
+            if (prevBoxSort.Equals("up"))
+            {
+                result = result.OrderBy(box => box.BoxName);
+            }
+            else
+            {
+                result = result.OrderByDescending(box => box.BoxName);
+            }
+            result = result.Include(b => b.BoxTheme);
+            return await result.ToListAsync();
         }
     }
 }
