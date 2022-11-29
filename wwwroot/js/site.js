@@ -7,7 +7,8 @@ $('#imgFormInput').change(() => {
     if(file) {
         $("#imgRenderView").attr("src", URL.createObjectURL(file));
         $("#imgRenderView").removeClass("visually-hidden");
-        
+        $("#imgRenderFormGroup").removeClass("visually-hidden");
+        $('#imgNameEdit').attr('value', "");
     }
 });
 
@@ -15,6 +16,8 @@ function doDeleteImg() {
     var imgName = $('#imgNameEdit').val();
     $('#imgNameEdit').attr('value', "delete:" + imgName);
     $("#imgRenderView").addClass("visually-hidden");
+    $("#imgRenderFormGroup").addClass("visually-hidden");
+    $("#imgFormInput").val(null);
 }
 
 $('#colorPickerInput').minicolors({
