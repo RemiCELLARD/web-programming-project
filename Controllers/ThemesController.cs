@@ -34,44 +34,22 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Themes
-        [HttpGet]
-        public async Task<IActionResult> Index(string themeSearch = "", int themeAgeRange = -1, string prevThemeSort = "down") 
+        public async Task<IActionResult> Index(string themeSearch = "", int themeAgeRange = -1, string prevThemeSort = "up") 
         {
             if (Request.Query.Count == 0)
             {
                 themeAgeRange = -1; /* Fix issue when you load Index for first time */
             }
-
-            if (prevThemeSort.Equals("down"))
-            {
-                prevThemeSort = "up";
-            }
-            else
-            {
-                prevThemeSort = "down";
-            }
             ViewData["prevThemeSort"] = prevThemeSort;
             ViewData["themeSearch"] = themeSearch;
             ViewData["themeAgeRange"] = themeAgeRange.ToString();
-            IQueryable<Theme> result = _context.Theme;
-            if (!string.IsNullOrWhiteSpace(themeSearch))
-            {
-                result = result.Where(theme => theme.ThemeName.Contains(themeSearch));
-            }
-            if(themeAgeRange != -1)
-            {
-                result = result.Where(theme => theme.ThemeAgeCategory.Equals((AgeCategoryEnum)themeAgeRange));
-            }
+            return View(await GetThemeAsync(themeSearch, themeAgeRange, prevThemeSort));
+        }
 
-            if (prevThemeSort.Equals("up"))
-            {
-                result = result.OrderBy(theme => theme.ThemeName);
-            }
-            else
-            {
-                result = result.OrderByDescending(theme => theme.ThemeName);
-            }
-            return View(await result.ToListAsync());
+        // GET: Themes
+        public async Task<IActionResult> Search(string themeSearch = "", int themeAgeRange = -1, string prevThemeSort = "up")
+        {
+            return PartialView("_ThemesCard", await GetThemeAsync(themeSearch, themeAgeRange, prevThemeSort));
         }
 
         // GET: Themes/Details/5
@@ -182,30 +160,10 @@ namespace Web_Programming_Project.Controllers
             return View(theme);
         }
 
-        // GET: Themes/Delete/5
-        [Authorize]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Theme == null)
-            {
-                return NotFound();
-            }
-
-            var theme = await _context.Theme
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (theme == null)
-            {
-                return NotFound();
-            }
-
-            return View(theme);
-        }
-
         // POST: Themes/Delete/5
         [Authorize]
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [HttpPost]
+        public async Task<IActionResult> DeleteAjaxConfirmed(int id)
         {
             if (_context.Theme == null)
             {
@@ -217,9 +175,8 @@ namespace Web_Programming_Project.Controllers
                 await _context.ImgManager.DeleteImage(_themeImgRoot, theme.ThemeImgName);
                 _context.Theme.Remove(theme);
             }
-            
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return StatusCode(200);
         }
 
         /// <summary>
@@ -230,6 +187,36 @@ namespace Web_Programming_Project.Controllers
         private bool ThemeExists(int id)
         {
           return _context.Theme.Any(e => e.Id == id);
+        }
+
+        /// <summary>
+        /// Get all Theme based on search filters
+        /// </summary>
+        /// <param name="themeSearch">Part of the name of the theme</param>
+        /// <param name="themeAgeRange">Age range</param>
+        /// <param name="prevThemeSort">Sorting (A-Z or Z-A)</param>
+        /// <returns></returns>
+        private async Task<List<Theme>> GetThemeAsync(string themeSearch = "", int themeAgeRange = -1, string prevThemeSort = "down")
+        {
+            IQueryable<Theme> result = _context.Theme;
+            if (!string.IsNullOrWhiteSpace(themeSearch))
+            {
+                result = result.Where(theme => theme.ThemeName.Contains(themeSearch));
+            }
+            if (themeAgeRange != -1)
+            {
+                result = result.Where(theme => theme.ThemeAgeCategory.Equals((AgeCategoryEnum)themeAgeRange));
+            }
+
+            if (prevThemeSort.Equals("up"))
+            {
+                result = result.OrderBy(theme => theme.ThemeName);
+            }
+            else
+            {
+                result = result.OrderByDescending(theme => theme.ThemeName);
+            }
+            return await result.ToListAsync();
         }
     }
 }

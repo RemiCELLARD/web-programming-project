@@ -1,0 +1,26 @@
+﻿@model Theme
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="card mt-3" id="themeCard@(Model.Id)">
+    <div class="row g-0">
+        <div class="d-flex align-items-center ps-3 pt-3 pb-3">
+            <div class="flex-shrink-0 media-img-lego">
+                <img id="themeImg@(Model.Id)" src="@("~/uploads/images/Themes/"+Model.ThemeImgName)" asp-append-version="true" class="img-fluid rounded" alt="...">
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h5 class="card-title" id="themeName@(Model.Id)">@Html.DisplayFor(modelItem => Model.ThemeName)</h5>
+                <h6 class="card-subtitle mb-2 text-muted" id="themeAgeCategory@(Model.Id)"><i class="fa-solid fa-cake-candles"></i> @Html.DisplayFor(modelItem => Model.ThemeAgeCategory)</h6>
+                <p class="card-text" id="themeDescription@(Model.Id)">@Html.DisplayFor(modelItem => Model.ThemeDescription)</p>
+                <p class="card-text">
+                    <a href="/Boxes?boxThemeId=@Model.Id" class="btn btn-primary">View associated boxes</a>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-action="Edit" class="btn btn-warning" asp-route-id="@Model.Id"><i class="fa-solid fa-pen-to-square"></i></a>
+                        <a class="btn btn-danger" onclick="openModalDeleteTheme(@Model.Id)"><i class="fa-solid fa-trash"></i></a>
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
