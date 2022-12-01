@@ -1,0 +1,22 @@
+﻿@model BrickColor
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="col" id="brickColorCard@(Model.Id)">
+    <div class="card h-100 text-center">
+        <div class="card-img-top mt-4" id="brickColorDisplay@(Model.Id)">
+            <i class="fa-solid fa-stop fs-1" style="color:rgba(@(Model.BrickColorRed),@(Model.BrickColorGreen),@(Model.BrickColorBlue),@(Model.BrickColorAlpha))"></i>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title" id="brickColorName@(Model.Id)">@(Model.BrickColorName)</h5>
+            <h6 class="card-subtitle mb-2 text-muted fst-italic" id="brickColorRgba@(Model.Id)">rgba(@(Model.BrickColorRed),@(Model.BrickColorGreen),@(Model.BrickColorBlue),@(Model.BrickColorAlpha))</h6>
+        </div>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="card-footer">
+                <a asp-action="Edit" class="btn btn-warning" asp-route-id="@Model.Id"><i class="fa-solid fa-pen-to-square"></i></a>
+                <a class="btn btn-danger" onclick="openModalDeleteBrickColor(@Model.Id)"><i class="fa-solid fa-trash"></i></a>
+            </div>
+        }
+    </div>
+</div>

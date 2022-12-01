@@ -1,59 +1,226 @@
 ﻿@model IEnumerable<Web_Programming_Project.Models.BrickColor>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Brick Colors";
 }
 
-<h1>Index</h1>
+<h1>Brick Colors</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.BrickColorName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BrickColorRed)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BrickColorGreen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BrickColorBlue)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BrickColorAlpha)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.BrickColorName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BrickColorRed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BrickColorGreen)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BrickColorBlue)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BrickColorAlpha)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<div class="input-group mb-3">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a asp-action="Create" class="btn btn-success rounded-end me-4"><i class="fa-solid fa-plus"></i> Create color</a>
+    }
+    <input type="text" oninput="onSearchUpdate()" name="brickColorSearch" value="@ViewData["brickColorSearch"]" class="form-control rounded-start" placeholder="Color name" aria-label="Color name">
+    <input type="text" id="colorPickerInputSearch" class="form-control rounded-end" value="rgba(@ViewData["brickColorFilterRed"],@ViewData["brickColorFilterGreen"],@ViewData["brickColorFilterBlue"],@ViewData["brickColorFilterAlpha"])">
+    <input id="brickColorRedSearch" class="form-control visually-hidden disabled" value="@ViewData["brickColorFilterRed"]" />
+    <input id="brickColorGreenSearch" class="form-control visually-hidden disabled" value="@ViewData["brickColorFilterGreen"]" />
+    <input id="brickColorBlueSearch" class="form-control visually-hidden disabled" value="@ViewData["brickColorFilterBlue"]" />
+    <input id="brickColorAlphaSearch" class="form-control visually-hidden disabled" value="@ViewData["brickColorFilterAlpha"]" />
+    <button id="prevBrickColorSort" onclick="sortSearch()" value="@ViewData["prevBrickColorSort"]" class="btn btn-primary rounded ms-4"><i id="prevBrickColorSortIcon" class="fa-solid fa-sort-alpha-@ViewData["prevBrickColorSort"]"></i></button>
+</div>
+<div class="row row-cols-1 row-cols-md-4" id="list-brick-colors">
+    <partial name="_BrickColorsCard" model="Model"/>
+</div>
+
+<!-- Delete Popup -->
+<!-- Modal -->
+<div class="modal fade" id="modalDeleteBrickColor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDeleteBrickColorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDeleteBrickColorLabel">Delete a color</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure to delete this color ?
+                <br/>
+                <div class="card mt-3 h-100 text-center">
+                    <div class="card-img-top mt-4" id="modalDeleteBrickColorDisplay"></div>
+                    <div class="card-body">
+                        <h5 class="card-title" id="modalDeleteBrickColorName">Name</h5>
+                        <h6 class="card-subtitle mb-2 text-muted fst-italic" id="modalDeleteBrickColorRgba"></h6>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" onclick="onDeleteRequest()" name="deleteBrickColorAction" value="-1" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+<script async>
+    var modalDeleteBrickColorObj = null;
+
+    function sortSearch() {
+        /* Switch the state of the button */
+        if ($('#prevBrickColorSortIcon').hasClass('fa-sort-alpha-down')) {
+            $('#prevBrickColorSortIcon').removeClass('fa-sort-alpha-down').addClass('fa-sort-alpha-up');
+            $('#prevBrickColorSort').val("up");
+        } else {
+            $('#prevBrickColorSortIcon').removeClass('fa-sort-alpha-up').addClass('fa-sort-alpha-down');
+            $('#prevBrickColorSort').val("down");
+        }
+        onSearchUpdate();
+    }
+
+    function openModalDeleteBrickColor(brickColorId) {
+        if (modalDeleteBrickColorObj == null) {
+            modalDeleteBrickColorObj = new bootstrap.Modal(document.getElementById('modalDeleteBrickColor'), {});
+        }
+        const brickColorInfo = {
+            id: brickColorId,
+            brickColorName: $(`#brickColorName${brickColorId}`).text(),
+            brickColorDisplay: $(`#brickColorDisplay${brickColorId}`).html(),
+            brickColorRgba: $(`#brickColorRgba${brickColorId}`).text()
+        }
+        
+        /* Fill the informations and show it */
+        $("#modalDeleteBrickColorLabel").text(`Delete ${brickColorInfo['brickColorName']}`);
+        $("#modalDeleteBrickColorName").text(brickColorInfo['brickColorName']);
+        $("#modalDeleteBrickColorDisplay").html(brickColorInfo['brickColorDisplay']);
+        $("#modalDeleteBrickColorRgba").text(brickColorInfo['brickColorRgba']);
+        $('button[name="deleteBrickColorAction"]').val(brickColorId);
+        modalDeleteBrickColorObj.show();
+    }
+
+    function onDeleteRequest() {
+        var brickColorId = $('button[name="deleteBrickColorAction"]').val();
+        
+        /* Check for bad data */
+        if (isNaN(brickColorId) || brickColorId == "") { return; }
+        brickColorId = Number(brickColorId);
+        if (brickColorId == -1) { return; }
+
+        /* Ajax Request */
+        $.ajax({
+            url: "/BrickColors/DeleteAjaxConfirmed",
+            type: "POST",
+            data: {
+                    id: brickColorId
+            },
+            success: function (data) {
+                $(`#brickColorCard${brickColorId}`).remove();
+            },
+            error: function (err) {
+                $(`#brickColorCard${brickColorId}`).remove();
+            }
+        });
+        $('button[name="deleteBrickColorAction"]').val(-1);
+        modalDeleteBrickColorObj.hide();
+    }
+
+    function onSearchUpdate() {
+        /* Data in the input */
+        var dataBrickColorSearch = $('input[name="brickColorSearch"]').val();
+        var dataPrevBrickColorSort = $('#prevBrickColorSort').val();
+        var dataBrickColorRedSearch = $('#brickColorRedSearch').val();
+        var dataBrickColorGreenSearch = $('#brickColorGreenSearch').val();
+        var dataBrickColorBlueSearch = $('#brickColorBlueSearch').val();
+        var dataBrickColorAlphaSearch = $('#brickColorAlphaSearch').val();
+        
+        const dataSearch = {
+            brickColorSearch: dataBrickColorSearch,
+            brickColorRedSearch: dataBrickColorRedSearch,
+            brickColorGreenSearch: dataBrickColorGreenSearch,
+            brickColorBlueSearch: dataBrickColorBlueSearch,
+            brickColorAlphaSearch: dataBrickColorAlphaSearch,
+            prevBrickColorSort: dataPrevBrickColorSort
+        };
+
+        /* Ajax Request */
+        $.ajax({
+            url: "/BrickColors/Search",
+            type: "GET",
+            data: dataSearch,
+            success : function (data) {
+                $("#list-brick-colors").html(data);
+            },
+            error : function (err) {
+                $("#list-theme").html(`
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">Ooopppss !</h4>
+                        <p>Error with the server... Please try again later.</p>
+                    </div>
+                `);
+            }
+        });
+    }
+
+    $('#colorPickerInputSearch').minicolors({
+
+        // hue, brightness, saturation, or wheel
+        control: 'hue',
+
+        // default color
+        defaultValue: '',
+
+        // hex or rgb
+        format: 'rgb',
+
+        // is inline mode?
+        inline: false,
+
+        // a comma-separated list of keywords that the control should accept (e.g. inherit, transparent, initial).
+        keywords: '',
+
+        // uppercase or lowercase
+        letterCase: 'lowercase',
+
+        // enables opacity slider
+        opacity: true,
+
+        // custom position
+        position: 'bottom left',
+
+        // additional theme class
+        theme: 'bootstrap',
+
+        // an array of colors that will show up under the main color <a href="https://www.jqueryscript.net/tags.php?/grid/">grid</a>
+        swatches: [
+            '#fff',
+            '#000',
+            '#f00',
+            '#0f0',
+            '#00f',
+            '#ff0',
+            'rgba(0,0,255,0.5)'
+        ],
+
+        change: function (value, opacity) {
+            if (!value)
+            {
+                $('#brickColorRedSearch').attr('value', -1);
+                $('#brickColorGreenSearch').attr('value', -1);
+                $('#brickColorBlueSearch').attr('value', -1);
+                $('#brickColorAlphaSearch').attr('value', -1);
+                return;
+            }
+            if (value.startsWith('rgba'))
+            {
+                var data = value.replace(/\s/g, '').slice(5, value.length-1).split(',');
+                $('#brickColorRedSearch').attr('value', data[0]);
+                $('#brickColorGreenSearch').attr('value', data[1]);
+                $('#brickColorBlueSearch').attr('value', data[2]);
+                $('#brickColorAlphaSearch').attr('value', opacity);
+            }
+            else
+            {
+                $('#brickColorRedSearch').attr('value', -1);
+                $('#brickColorGreenSearch').attr('value', -1);
+                $('#brickColorBlueSearch').attr('value', -1);
+                $('#brickColorAlphaSearch').attr('value', -1);
+            }
+        },
+
+        hide: function () {
+            onSearchUpdate();
+        }
+    });
+</script>
+
 }
-    </tbody>
-</table>

@@ -13,20 +13,19 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="BrickColorName" class="control-label"></label>
+            <div class="form-floating mt-2">
                 <input asp-for="BrickColorName" class="form-control" />
+                <label asp-for="BrickColorName" class="control-label"></label>
                 <span asp-validation-for="BrickColorName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label class="control-label">Color RGBA</label>
+            <div class="form-group mt-2">
                 <input type="text" id="colorPickerInput" class="form-control" value="rgba(@(Model.BrickColorRed), @(Model.BrickColorGreen), @(Model.BrickColorBlue), @(Model.BrickColorAlpha))">
                 <input asp-for="BrickColorRed" class="form-control visually-hidden disabled" />
                 <input asp-for="BrickColorGreen" class="form-control visually-hidden disabled" />
                 <input asp-for="BrickColorBlue" class="form-control visually-hidden disabled" />
                 <input asp-for="BrickColorAlpha" class="form-control visually-hidden disabled" />
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
