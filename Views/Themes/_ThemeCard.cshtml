@@ -17,7 +17,7 @@
                     @if (User.Identity.IsAuthenticated)
                     {
                         <a asp-action="Edit" class="btn btn-warning" asp-route-id="@Model.Id"><i class="fa-solid fa-pen-to-square"></i></a>
-                        <a class="btn btn-danger" onclick="openModalDeleteTheme(@Model.Id)"><i class="fa-solid fa-trash"></i></a>
+                        <button class="btn btn-danger" name="openModalDeleteTheme" value="@Model.Id"><i class="fa-solid fa-trash"></i></button>
                     }
                 </p>
             </div>

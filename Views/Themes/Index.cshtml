@@ -11,16 +11,16 @@
     {
         <a asp-action="Create" class="btn btn-success rounded-end me-4"><i class="fa-solid fa-plus"></i> Create theme</a>
     }
-    <input type="text" oninput="onSearchUpdate()" name="themeSearch" value="@ViewData["themeSearch"]" class="form-control rounded-start" placeholder="Theme name" aria-label="Theme name" aria-describedby="button-submit-search">
+    <input type="text" name="themeSearch" value="@ViewData["themeSearch"]" class="form-control rounded-start" placeholder="Search theme name">
     @if (ViewData["themeAgeRange"] is null)
     {
-        <select onchange="onSearchUpdate()" class="form-select rounded-end" name="themeAgeRange" id="inputGroupSelect01" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>().ToList()">
+        <select class="form-select rounded-end" name="themeAgeRange" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>().ToList()">
             <option value="0" selected>Age range</option>
         </select>
     }
     else
     {
-        <select onchange="onSearchUpdate()" class="form-select rounded-end" name="themeAgeRange" id="inputGroupSelect01">
+        <select class="form-select rounded-end" name="themeAgeRange">
             @if ("0".Equals(ViewData["themeAgeRange"]))
             {
                 <option value="0" selected>Age range</option>
@@ -42,116 +42,74 @@
             }
         </select>
     }
-    <button id="prevThemeSort" onclick="sortSearch()" value="@ViewData["prevThemeSort"]" class="btn btn-primary rounded ms-4"><i id="prevThemeSortIcon" class="fa-solid fa-sort-alpha-@ViewData["prevThemeSort"]"></i></button>
+    <button name="prevThemeSort" value="@ViewData["prevThemeSort"]" class="btn btn-primary rounded ms-4"><i id="prevThemeSortIcon" class="fa-solid fa-sort-alpha-@ViewData["prevThemeSort"]"></i></button>
 </div>
 
-<div id="list-theme">
+<div id="list-themes">
     <partial name="_ThemesCard" model="Model" />
 </div>
 
-<!-- Delete Popup -->
-<!-- Modal -->
-<div class="modal fade" id="modalDeleteTheme" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDeleteThemeLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalDeleteThemeLabel">Delete a theme</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure to delete this theme ?
-                <br/>
-                <div class="card mt-3">
-                    <div class="row g-0">
-                        <div class="d-flex align-items-center ps-3 pt-3 pb-3">
-                            <div class="flex-shrink-0 media-img-lego">
-                                <img id="modalDeleteThemeImg" src="/uploads/images/Themes/default.png" class="img-fluid rounded" alt="...">
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="card-title" id="modalDeleteThemeName">Name</h5>
-                                <h6 class="card-subtitle mb-2 text-muted" id="modalDeleteThemeAgeCategory"></h6>
-                                <p class="card-text" id="modalDeleteThemeDescription"></p>
+@if (User.Identity.IsAuthenticated)
+{
+    <!-- Delete Popup -->
+    <!-- Modal -->
+    <div class="modal fade" id="modalDeleteTheme" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDeleteThemeLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDeleteThemeLabel">Delete a theme</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure to delete this theme ?
+                    <br/>
+                    <div class="card mt-3">
+                        <div class="row g-0">
+                            <div class="d-flex align-items-center ps-3 pt-3 pb-3">
+                                <div class="flex-shrink-0 media-img-lego">
+                                    <img id="modalDeleteThemeImg" src="/uploads/images/Themes/default.png" class="img-fluid rounded" alt="...">
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h5 class="card-title" id="modalDeleteThemeName">Name</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted" id="modalDeleteThemeAgeCategory"></h6>
+                                    <p class="card-text" id="modalDeleteThemeDescription"></p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" onclick="onDeleteRequest()" name="deleteThemeAction" value="-1" class="btn btn-danger">Delete</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" name="deleteThemeAction" value="-1" class="btn btn-danger">Delete</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
+@section Scripts {
 <script>
-    var modalDeleteThemeObj = null;
-    function openModalDeleteTheme(themeId) {
-        if (modalDeleteThemeObj == null){
-            modalDeleteThemeObj = new bootstrap.Modal(document.getElementById('modalDeleteTheme'), {});
-        }
-        const themeInfo = {
-            id: themeId,
-            themeName: $(`#themeName${themeId}`).text(),
-            themeImg: $(`#themeImg${themeId}`).attr('src'),
-            themeAgeCategory: $(`#themeAgeCategory${themeId}`).html(),
-            themeDescription: $(`#themeDescription${themeId}`).text(),
-        }
-        
-        /* Fill the informations and show it */
-        $("#modalDeleteThemeLabel").text(`Delete ${themeInfo['themeName']}`);
-        $("#modalDeleteThemeName").text(themeInfo['themeName']);
-        $("#modalDeleteThemeAgeCategory").html(themeInfo['themeAgeCategory']);
-        $("#modalDeleteThemeDescription").text(themeInfo['themeDescription']);
-        $("#modalDeleteThemeImg").attr('src',themeInfo['themeImg']);
-        $('button[name="deleteThemeAction"]').val(themeId);
-        modalDeleteThemeObj.show();
-    }
 
-    function sortSearch() {
+    $('select[name="themeAgeRange"]').change(function() { onSearchUpdate(); });
+    $('input[name="themeSearch"]').on("input", function() { onSearchUpdate(); });
+    $('button[name="prevThemeSort"]').click(function() { 
         /* Switch the state of the button */
         if ($('#prevThemeSortIcon').hasClass('fa-sort-alpha-down')) {
             $('#prevThemeSortIcon').removeClass('fa-sort-alpha-down').addClass('fa-sort-alpha-up');
-            $('#prevThemeSort').val("up");
+            $(this).val("up");
         } else {
             $('#prevThemeSortIcon').removeClass('fa-sort-alpha-up').addClass('fa-sort-alpha-down');
-            $('#prevThemeSort').val("down");
+            $(this).val("down");
         }
         onSearchUpdate();
-    }
-
-    function onDeleteRequest() {
-        var themeId = $('button[name="deleteThemeAction"]').val();
-        
-        /* Check for bad data */
-        if (isNaN(themeId) || themeId == "") { return; }
-        themeId = Number(themeId);
-        if (themeId == -1) {return; }
-
-        /* Ajax Request */
-        $.ajax({
-            url: "/Themes/DeleteAjaxConfirmed",
-            type: "POST",
-            data: {
-                id: themeId
-            },
-            success: function (data) {
-                $(`#themeCard${themeId}`).remove();
-            },
-            error: function (err) {
-                $(`#themeCard${themeId}`).remove();
-            }
-        });
-        $('button[name="deleteThemeAction"]').val(-1);
-        modalDeleteThemeObj.hide();
-    }
+    });
 
     function onSearchUpdate() {
         /* Data in the input */
         var dataThemeSearch = $('input[name="themeSearch"]').val();
         var dataThemeAgeRange = $('select[name="themeAgeRange"]').val();
-        var dataPrevThemeSort = $('#prevThemeSort').val();
+        var dataPrevThemeSort = $('button[name="prevThemeSort"]').val();
         const dataSearch = {
             themeSearch: dataThemeSearch,
             themeAgeRange: dataThemeAgeRange,
@@ -164,10 +122,10 @@
             type: "GET",
             data: dataSearch,
             success : function (data) {
-                $("#list-theme").html(data);
+                $("#list-themes").html(data);
             },
             error : function (err) {
-                $("#list-theme").html(`
+                $("#list-themes").html(`
                     <div class="alert alert-danger" role="alert">
                         <h4 class="alert-heading">Ooopppss !</h4>
                         <p>Error with the server... Please try again later.</p>
@@ -177,3 +135,80 @@
         });
     }
 </script>
+@if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            var modalDeleteThemeObj = null;
+            $('button[name="deleteThemeAction"]').click(function() {
+                var themeId = $(this).val();
+                /* Check for bad data */
+                if (isNaN(themeId) || themeId == "") { return; }
+                themeId = Number(themeId);
+                if (themeId == -1) {return; }
+
+                /* Ajax Request */
+                $.ajax({
+                    url: "/Themes/DeleteAjaxConfirmed",
+                    type: "POST",
+                    data: {
+                        id: themeId
+                    },
+                    success: function (data) {
+                        $(`#themeCard${themeId}`).remove();
+                        if($.trim($("#list-themes").html()) == "")
+                        {
+                            $("#list-themes").html(`
+                            <div class="alert alert-danger col-12 col-md-12" role="alert">
+                            <h4 class="alert-heading">Ooopppss !</h4>
+                            <p>No data exist in the database</p>
+                            </div>
+                            `);
+                        }
+                    },
+                    error: function (err) {
+                        $(`#themeCard${themeId}`).remove();
+                        if($.trim($("#list-themes").html()) == "")
+                        {
+                            $("#list-themes").html(`
+                            <div class="alert alert-danger col-12 col-md-12" role="alert">
+                            <h4 class="alert-heading">Ooopppss !</h4>
+                            <p>No data exist in the database</p>
+                            </div>
+                            `);
+                        }
+                    }
+                });
+                $(this).val(-1);
+                modalDeleteThemeObj.hide();
+            });
+
+            $('button[name="openModalDeleteTheme"]').click(function() {
+                var themeId = $(this).val();
+                /* Check for bad data */
+                if (isNaN(themeId) || themeId == "") { return; }
+                themeId = Number(themeId);
+                if (themeId == -1) {return; }
+
+                if (modalDeleteThemeObj == null){
+                    modalDeleteThemeObj = new bootstrap.Modal(document.getElementById('modalDeleteTheme'), {});
+                }
+                const themeInfo = {
+                    id: themeId,
+                    themeName: $(`#themeName${themeId}`).text(),
+                    themeImg: $(`#themeImg${themeId}`).attr('src'),
+                    themeAgeCategory: $(`#themeAgeCategory${themeId}`).html(),
+                    themeDescription: $(`#themeDescription${themeId}`).text()
+                }
+
+                /* Fill the informations and show it */
+                $("#modalDeleteThemeLabel").text(`Delete ${themeInfo['themeName']}`);
+                $("#modalDeleteThemeName").text(themeInfo['themeName']);
+                $("#modalDeleteThemeAgeCategory").html(themeInfo['themeAgeCategory']);
+                $("#modalDeleteThemeDescription").text(themeInfo['themeDescription']);
+                $("#modalDeleteThemeImg").attr('src',themeInfo['themeImg']);
+                $('button[name="deleteThemeAction"]').val(themeId);
+                modalDeleteThemeObj.show();
+            });
+        </script>
+    }
+}
