@@ -14,8 +14,12 @@
     <input type="text" name="boxSearch" value="@ViewData["boxSearch"]" class="form-control rounded-start" placeholder="Search box name">
     @if (ViewData["boxThemeId"] is null)
     {
-        <select class="form-select" name="boxThemeId"asp-items="ViewBag.Themes">
+        <select class="form-select" name="boxThemeId">
             <option value="-1" selected>Select a theme</option>
+            @foreach (Theme item in ViewBag.Themes)
+            {
+                <option value="@(item.Id)">@(item.ThemeName)</option>
+            }
         </select>
     }
     else
@@ -148,6 +152,9 @@
             data: dataSearch,
             success : function (data) {
                 $("#list-boxes").html(data);
+                if (typeof reload_evh_delete === 'function'){
+                    reload_evh_delete();
+                }
             },
             error : function (err) {
                 $("#list-theme").html(`
@@ -156,6 +163,9 @@
                         <p>Error with the server... Please try again later.</p>
                     </div>
                 `);
+                if (typeof reload_evh_delete === 'function'){
+                    reload_evh_delete();
+                }
             }
         });
     }
@@ -164,77 +174,78 @@
     {
         <script>
             var modalDeleteBoxObj = null;
-            $('button[name="deleteBoxAction"]').click(function() {
-                var boxId = $(this).val();
 
-                /* Check for bad data */
-                if (isNaN(boxId) || boxId == "") { return; }
-                boxId = Number(boxId);
-                if (boxId == -1) { return; }
+            function reload_evh_delete() {
+                $('button[name="deleteBoxAction"]').click(function () {
+                    var boxId = $(this).val();
 
-                /* Ajax Request */
-                $.ajax({
-                    url: "/Boxes/DeleteAjaxConfirmed",
-                    type: "POST",
-                    data: {
-                        id: boxId
-                    },
-                    success: function (data) {
-                        $(`#boxCard${boxId}`).remove();
-                        if($.trim($("#list-boxes").html()) == "")
-                        {
-                            $("#list-boxes").html(`
-                            <div class="alert alert-danger col-12 col-md-12" role="alert">
-                            <h4 class="alert-heading">Ooopppss !</h4>
-                            <p>No data exist in the database</p>
-                            </div>
-                            `);
+                    /* Check for bad data */
+                    if (isNaN(boxId) || boxId == "") { return; }
+                    boxId = Number(boxId);
+                    if (boxId == -1) { return; }
+
+                    /* Ajax Request */
+                    $.ajax({
+                        url: "/Boxes/DeleteAjaxConfirmed",
+                        type: "POST",
+                        data: {
+                            id: boxId
+                        },
+                        success: function (data) {
+                            $(`#boxCard${boxId}`).remove();
+                            if ($.trim($("#list-boxes").html()) == "") {
+                                $("#list-boxes").html(`
+                                        <div class="alert alert-danger col-12 col-md-12" role="alert">
+                                        <h4 class="alert-heading">Ooopppss !</h4>
+                                        <p>No data exist in the database</p>
+                                        </div>
+                                        `);
+                            }
+                        },
+                        error: function (err) {
+                            $(`#boxCard${boxId}`).remove();
+                            if ($.trim($("#list-boxes").html()) == "") {
+                                $("#list-boxes").html(`
+                                        <div class="alert alert-danger col-12 col-md-12" role="alert">
+                                        <h4 class="alert-heading">Ooopppss !</h4>
+                                        <p>No data exist in the database</p>
+                                        </div>
+                                        `);
+                            }
                         }
-                    },
-                    error: function (err) {
-                        $(`#boxCard${boxId}`).remove();
-                        if($.trim($("#list-boxes").html()) == "")
-                        {
-                            $("#list-boxes").html(`
-                            <div class="alert alert-danger col-12 col-md-12" role="alert">
-                            <h4 class="alert-heading">Ooopppss !</h4>
-                            <p>No data exist in the database</p>
-                            </div>
-                            `);
-                        }
-                    }
+                    });
+                    $('button[name="deleteBoxAction"]').val(-1);
+                    modalDeleteBoxObj.hide();
                 });
-                $('button[name="deleteBoxAction"]').val(-1);
-                modalDeleteBoxObj.hide();
-            });
 
-            $('button[name="openModalDeleteBox"]').click(function() {
-                var boxId = $(this).val();
-                /* Check for bad data */
-                if (isNaN(boxId) || boxId == "") { return; }
-                boxId = Number(boxId);
-                if (boxId == -1) { return; }
+                $('button[name="openModalDeleteBox"]').click(function () {
+                    var boxId = $(this).val();
+                    /* Check for bad data */
+                    if (isNaN(boxId) || boxId == "") { return; }
+                    boxId = Number(boxId);
+                    if (boxId == -1) { return; }
 
-                if (modalDeleteBoxObj == null) {
-                    modalDeleteBoxObj = new bootstrap.Modal(document.getElementById('modalDeleteBox'), {});
-                }
-                const boxInfo = {
-                    id: boxId,
-                    boxName: $(`#boxName${boxId}`).text(),
-                    boxImg: $(`#boxImg${boxId}`).attr('src'),
-                    boxAgeCategory: $(`#boxAgeCategory${boxId}`).html(),
-                    boxThemeName: $(`#boxThemeName${boxId}`).text()
-                }
+                    if (modalDeleteBoxObj == null) {
+                        modalDeleteBoxObj = new bootstrap.Modal(document.getElementById('modalDeleteBox'), {});
+                    }
+                    const boxInfo = {
+                        id: boxId,
+                        boxName: $(`#boxName${boxId}`).text(),
+                        boxImg: $(`#boxImg${boxId}`).attr('src'),
+                        boxAgeCategory: $(`#boxAgeCategory${boxId}`).html(),
+                        boxThemeName: $(`#boxThemeName${boxId}`).text()
+                    }
 
-                /* Fill the informations and show it */
-                $("#modalDeleteBoxLabel").text(`Delete ${boxInfo['boxName']}`);
-                $("#modalDeleteBoxName").text(boxInfo['boxName']);
-                $("#modalDeleteBoxAgeCategory").html(boxInfo['boxAgeCategory']);
-                $("#modalDeleteBoxThemeName").text(boxInfo['boxThemeName']);
-                $("#modalDeleteBoxImg").attr('src',boxInfo['boxImg']);
-                $('button[name="deleteBoxAction"]').val(boxId);
-                modalDeleteBoxObj.show();
-            });
+                    /* Fill the informations and show it */
+                    $("#modalDeleteBoxLabel").text(`Delete ${boxInfo['boxName']}`);
+                    $("#modalDeleteBoxName").text(boxInfo['boxName']);
+                    $("#modalDeleteBoxAgeCategory").html(boxInfo['boxAgeCategory']);
+                    $("#modalDeleteBoxThemeName").text(boxInfo['boxThemeName']);
+                    $("#modalDeleteBoxImg").attr('src', boxInfo['boxImg']);
+                    $('button[name="deleteBoxAction"]').val(boxId);
+                    modalDeleteBoxObj.show();
+                });
+            }
         </script>
     }
 }

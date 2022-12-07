@@ -123,6 +123,9 @@
             data: dataSearch,
             success : function (data) {
                 $("#list-themes").html(data);
+                if (typeof reload_evh_delete === 'function'){
+                    reload_evh_delete();
+                }
             },
             error : function (err) {
                 $("#list-themes").html(`
@@ -131,6 +134,9 @@
                         <p>Error with the server... Please try again later.</p>
                     </div>
                 `);
+                if (typeof reload_evh_delete === 'function'){
+                    reload_evh_delete();
+                }
             }
         });
     }
@@ -139,76 +145,77 @@
     {
         <script>
             var modalDeleteThemeObj = null;
-            $('button[name="deleteThemeAction"]').click(function() {
-                var themeId = $(this).val();
-                /* Check for bad data */
-                if (isNaN(themeId) || themeId == "") { return; }
-                themeId = Number(themeId);
-                if (themeId == -1) {return; }
+            function reload_evh_delete()
+            {
+                $('button[name="deleteThemeAction"]').click(function () {
+                    var themeId = $(this).val();
+                    /* Check for bad data */
+                    if (isNaN(themeId) || themeId == "") { return; }
+                    themeId = Number(themeId);
+                    if (themeId == -1) { return; }
 
-                /* Ajax Request */
-                $.ajax({
-                    url: "/Themes/DeleteAjaxConfirmed",
-                    type: "POST",
-                    data: {
-                        id: themeId
-                    },
-                    success: function (data) {
-                        $(`#themeCard${themeId}`).remove();
-                        if($.trim($("#list-themes").html()) == "")
-                        {
-                            $("#list-themes").html(`
-                            <div class="alert alert-danger col-12 col-md-12" role="alert">
-                            <h4 class="alert-heading">Ooopppss !</h4>
-                            <p>No data exist in the database</p>
-                            </div>
-                            `);
+                    /* Ajax Request */
+                    $.ajax({
+                        url: "/Themes/DeleteAjaxConfirmed",
+                        type: "POST",
+                        data: {
+                            id: themeId
+                        },
+                        success: function (data) {
+                            $(`#themeCard${themeId}`).remove();
+                            if ($.trim($("#list-themes").html()) == "") {
+                                $("#list-themes").html(`
+                                        <div class="alert alert-danger col-12 col-md-12" role="alert">
+                                        <h4 class="alert-heading">Ooopppss !</h4>
+                                        <p>No data exist in the database</p>
+                                        </div>
+                                        `);
+                            }
+                        },
+                        error: function (err) {
+                            $(`#themeCard${themeId}`).remove();
+                            if ($.trim($("#list-themes").html()) == "") {
+                                $("#list-themes").html(`
+                                        <div class="alert alert-danger col-12 col-md-12" role="alert">
+                                        <h4 class="alert-heading">Ooopppss !</h4>
+                                        <p>No data exist in the database</p>
+                                        </div>
+                                        `);
+                            }
                         }
-                    },
-                    error: function (err) {
-                        $(`#themeCard${themeId}`).remove();
-                        if($.trim($("#list-themes").html()) == "")
-                        {
-                            $("#list-themes").html(`
-                            <div class="alert alert-danger col-12 col-md-12" role="alert">
-                            <h4 class="alert-heading">Ooopppss !</h4>
-                            <p>No data exist in the database</p>
-                            </div>
-                            `);
-                        }
-                    }
+                    });
+                    $(this).val(-1);
+                    modalDeleteThemeObj.hide();
                 });
-                $(this).val(-1);
-                modalDeleteThemeObj.hide();
-            });
 
-            $('button[name="openModalDeleteTheme"]').click(function() {
-                var themeId = $(this).val();
-                /* Check for bad data */
-                if (isNaN(themeId) || themeId == "") { return; }
-                themeId = Number(themeId);
-                if (themeId == -1) {return; }
+                $('button[name="openModalDeleteTheme"]').click(function () {
+                    var themeId = $(this).val();
+                    /* Check for bad data */
+                    if (isNaN(themeId) || themeId == "") { return; }
+                    themeId = Number(themeId);
+                    if (themeId == -1) { return; }
 
-                if (modalDeleteThemeObj == null){
-                    modalDeleteThemeObj = new bootstrap.Modal(document.getElementById('modalDeleteTheme'), {});
-                }
-                const themeInfo = {
-                    id: themeId,
-                    themeName: $(`#themeName${themeId}`).text(),
-                    themeImg: $(`#themeImg${themeId}`).attr('src'),
-                    themeAgeCategory: $(`#themeAgeCategory${themeId}`).html(),
-                    themeDescription: $(`#themeDescription${themeId}`).text()
-                }
+                    if (modalDeleteThemeObj == null) {
+                        modalDeleteThemeObj = new bootstrap.Modal(document.getElementById('modalDeleteTheme'), {});
+                    }
+                    const themeInfo = {
+                        id: themeId,
+                        themeName: $(`#themeName${themeId}`).text(),
+                        themeImg: $(`#themeImg${themeId}`).attr('src'),
+                        themeAgeCategory: $(`#themeAgeCategory${themeId}`).html(),
+                        themeDescription: $(`#themeDescription${themeId}`).text()
+                    }
 
-                /* Fill the informations and show it */
-                $("#modalDeleteThemeLabel").text(`Delete ${themeInfo['themeName']}`);
-                $("#modalDeleteThemeName").text(themeInfo['themeName']);
-                $("#modalDeleteThemeAgeCategory").html(themeInfo['themeAgeCategory']);
-                $("#modalDeleteThemeDescription").text(themeInfo['themeDescription']);
-                $("#modalDeleteThemeImg").attr('src',themeInfo['themeImg']);
-                $('button[name="deleteThemeAction"]').val(themeId);
-                modalDeleteThemeObj.show();
-            });
+                    /* Fill the informations and show it */
+                    $("#modalDeleteThemeLabel").text(`Delete ${themeInfo['themeName']}`);
+                    $("#modalDeleteThemeName").text(themeInfo['themeName']);
+                    $("#modalDeleteThemeAgeCategory").html(themeInfo['themeAgeCategory']);
+                    $("#modalDeleteThemeDescription").text(themeInfo['themeDescription']);
+                    $("#modalDeleteThemeImg").attr('src', themeInfo['themeImg']);
+                    $('button[name="deleteThemeAction"]').val(themeId);
+                    modalDeleteThemeObj.show();
+                });
+            }
         </script>
     }
 }
