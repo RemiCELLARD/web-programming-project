@@ -14,27 +14,42 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="BrickName" class="control-label"></label>
+            <div class="form-floating mt-2">
                 <input asp-for="BrickName" class="form-control" />
+                <label asp-for="BrickName" class="control-label"></label>
                 <span asp-validation-for="BrickName" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-floating mt-2">
+                <select asp-for="BrickColorId" class="form-select">
+                @foreach (BrickColor brickColor in ViewBag.BrickColors)
+                {
+                    @if(ViewBag.BrickColorId == brickColor.Id)
+                    {
+                        <option selected value="@brickColor.Id" style="color:rgba(@(brickColor.BrickColorRed),@(brickColor.BrickColorGreen),@(brickColor.BrickColorBlue),1)">
+                            █ @brickColor.BrickColorName
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@brickColor.Id" style="color:rgba(@(brickColor.BrickColorRed),@(brickColor.BrickColorGreen),@(brickColor.BrickColorBlue),1) !important">
+                            █ @brickColor.BrickColorName
+                        </option>
+                    }
+                }
+                </select>
                 <label asp-for="BrickColorId" class="control-label"></label>
-                <select asp-for="BrickColorId" class="form-control" asp-items="ViewBag.BrickColorId"></select>
-                <span asp-validation-for="BrickColorId" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-floating mt-2">
+                <select asp-for="BrickSize" class="form-select" asp-items="Html.GetEnumSelectList<BrickSizeEnum>()" ></select>
                 <label asp-for="BrickSize" class="control-label"></label>
-                <select asp-for="BrickSize" class="form-control" asp-items="Html.GetEnumSelectList<BrickSizeEnum>()" ></select>
                 <span asp-validation-for="BrickSize" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-floating mt-2">
+                <input asp-for="BrickPrice" min="0.01" step="0.01" class="form-control" type="number" />
                 <label asp-for="BrickPrice" class="control-label"></label>
-                <input asp-for="BrickPrice" class="form-control" />
                 <span asp-validation-for="BrickPrice" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mt-2">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>

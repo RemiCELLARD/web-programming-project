@@ -1,15 +1,92 @@
-﻿@model IEnumerable<Web_Programming_Project.Models.Brick>
+﻿@using Web_Programming_Project.Data.Enum;
+@model IEnumerable<Web_Programming_Project.Models.Brick>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Bricks";
 }
 
-<h1>Index</h1>
+<h1>Bricks</h1>
+<div class="input-group mb-3">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a asp-action="Create" class="btn btn-success rounded-end me-4"><i class="fa-solid fa-plus"></i> Create box</a>
+    }
+    <input type="text" name="brickSearch" value="@ViewData["brickSearch"]" class="form-control rounded-start" placeholder="Search brick name">
+    @if (ViewData["brickColorId"] is null)
+    {
+        <select class="form-select" name="brickColorId">
+            <option value="-1" selected>Select a color</option>
+            @foreach (BrickColor brickColor in ViewBag.BrickColors)
+            {
+                <option value="@brickColor.Id" style="color:rgba(@(brickColor.BrickColorRed),@(brickColor.BrickColorGreen),@(brickColor.BrickColorBlue),1) !important">
+                █ @brickColor.BrickColorName
+                </option>
+            }
+        </select>
+    }
+    else
+    {
+        <select class="form-select" name="brickColorId">
+            @if ("-1".Equals(ViewData["brickColorId"]))
+            {
+                <option value="-1" selected>Select a color</option>
+            }
+            else
+            {
+                <option value="-1">Select a color</option>
+            }
+            @foreach (BrickColor brickColor in ViewBag.BrickColors)
+            {
+                @if (brickColor.Id.Equals(ViewData["brickColorId"]))
+                {
+                    <option selected value="@brickColor.Id" style="color:rgba(@(brickColor.BrickColorRed),@(brickColor.BrickColorGreen),@(brickColor.BrickColorBlue),1) !important">
+                        █ @brickColor.BrickColorName
+                    </option>
+                }
+                else
+                {
+                    <option value="@brickColor.Id" style="color:rgba(@(brickColor.BrickColorRed),@(brickColor.BrickColorGreen),@(brickColor.BrickColorBlue),1) !important">
+                        █ @brickColor.BrickColorName
+                    </option>
+                }
+            }
+        </select>
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+    @if (ViewData["brickSize"] is null)
+    {
+        <select class="form-select rounded-end" name="brickSize" asp-items="Html.GetEnumSelectList<BrickSizeEnum>()">
+            <option value="0" selected>Select a size</option>
+        </select>
+    }
+    else
+    {
+        <select class="form-select rounded-end" name="brickSize">
+            @if ("0".Equals(ViewData["brickSize"]))
+            {
+                <option value="0" selected>Select a size</option>
+            }
+            else
+            {
+                <option value="0">Select a size</option>
+            }
+            @foreach (SelectListItem item in Html.GetEnumSelectList<BrickSizeEnum>())
+            {
+                @if (item.Value.Equals(ViewData["brickSize"]))
+                {
+                    <option value="@(item.Value)" selected>@(item.Text)</option>
+                }
+                else
+                {
+                    <option value="@(item.Value)">@(item.Text)</option>
+                }
+            }
+        </select>
+    }
+</div>
+
+
+<table class="table table-striped table-bordered table-sm">
     <thead>
         <tr>
             <th>
@@ -23,31 +100,201 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.BrickPrice)
+                <button name="prevBrickPriceSort" value="@ViewData["prevBrickPriceSort"]" class="btn btn-primary btn-sm float-end ml-3"><i id="prevBrickPriceSortIcon" class="fa-solid fa-sort-@ViewData["prevBrickPriceSort"]"></i></button>
             </th>
-            <th></th>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <th>Manage</th> 
+            }
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.BrickName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BrickColorObj.BrickColorName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BrickSize)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BrickPrice)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+    <tbody id="list-bricks">
+        <partial name="_BricksTable" model="Model"/>
     </tbody>
 </table>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <!-- Delete Popup -->
+    <!-- Modal -->
+    <div class="modal fade" id="modalDeleteBrick" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDeleteBrickLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDeleteBrickLabel">Delete a brick</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure to delete this brick ?
+                    <br />
+                    <div class="row justify-content-center mt-3">
+                        <div class="col-6">
+                            <table class="table table-striped table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td>@Html.DisplayNameFor(model => model.BrickName)</td>
+                                        <td id="modalDeleteBrickName"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>@Html.DisplayNameFor(model => model.BrickColorObj)</td>
+                                        <td id="modalDeleteBrickColor"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>@Html.DisplayNameFor(model => model.BrickSize)</td>
+                                        <td id="modalDeleteBrickSize"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>@Html.DisplayNameFor(model => model.BrickPrice)</td>
+                                        <td id="modalDeleteBrickPrice"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" name="deleteBrickAction" value="-1" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@section Scripts {
+<script>
+
+    $('select[name="brickSize"]').change(function() { onSearchUpdate(); });
+    $('select[name="brickColorId"]').change(function() { onSearchUpdate(); });
+    $('input[name="brickSearch"]').on("input", function() { onSearchUpdate(); });
+    $('button[name="prevBrickPriceSort"]').click(function() { 
+        /* Switch the state of the button */
+        if ($('#prevBrickPriceSortIcon').hasClass('fa-sort-down')) {
+            $('#prevBrickPriceSortIcon').removeClass('fa-sort-down').addClass('fa-sort-up');
+            $(this).val("up");
+        } else {
+            $('#prevBrickPriceSortIcon').removeClass('fa-sort-up').addClass('fa-sort-down');
+            $(this).val("down");
+        }
+        onSearchUpdate();
+    });
+
+    function onSearchUpdate() {
+        /* Data in the input */
+        var dataBrickSearch = $('input[name="brickSearch"]').val();
+        var dataBrickSize = $('select[name="brickSize"]').val();
+        var dataBrickColorId = $('select[name="brickColorId"]').val();
+        var dataPrevBrickPriceSort = $('button[name="prevBrickPriceSort"]').val();
+        const dataSearch = {
+            brickSearch: dataBrickSearch,
+            brickSize: dataBrickSize,
+            brickColorId: dataBrickColorId,
+            prevBrickPriceSort: dataPrevBrickPriceSort
+        };
+
+        /* Ajax Request */
+        $.ajax({
+            url: "/Bricks/Search",
+            type: "GET",
+            data: dataSearch,
+            success : function (data) {
+                $("#list-bricks").html(data);
+                if (typeof reload_evh_delete === 'function'){
+                    reload_evh_delete();
+                }
+            },
+            error : function (err) {
+                $("#list-bricks").html(`
+                    <tr class="text-danger">
+                        <td colspan="5" class="text-center"><i class="fas fa-sad-tear"></i> Ooops, Error with the server... Please try again later.</td>
+                    </tr>
+                `);
+                if (typeof reload_evh_delete === 'function'){
+                    reload_evh_delete();
+                }
+            }
+        });
+    }
+</script>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            var modalDeleteBrickObj = null;
+
+            function reload_evh_delete() {
+                $('button[name="deleteBrickAction"]').click(function () {
+                    var brickId = $(this).val();
+
+                    /* Check for bad data */
+                    if (isNaN(brickId) || brickId == "") { return; }
+                    brickId = Number(brickId);
+                    if (brickId == -1) { return; }
+
+                    /* Ajax Request */
+                    $.ajax({
+                        url: "/Bricks/DeleteAjaxConfirmed",
+                        type: "POST",
+                        data: {
+                            id: brickId
+                        },
+                        success: function (data) {
+                            $(`#brickLine${brickId}`).remove();
+                            if ($.trim($("#list-bricks").html()) == "") {
+                                $("#list-bricks").html(`
+                                        <tr class="text-danger">
+                                            <td colspan="5" class="text-center"><i class="fas fa-sad-tear"></i> Ooops, No brick found in database.</td>
+                                        </tr>
+                                        `);
+                            }
+                        },
+                        error: function (err) {
+                            $(`#brickLine${brickId}`).remove();
+                            if ($.trim($("#list-bricks").html()) == "") {
+                                $("#list-bricks").html(`
+                                        <tr class="text-danger">
+                                            <td colspan="5" class="text-center"><i class="fas fa-sad-tear"></i> Ooops, No brick found in database.</td>
+                                        </tr>
+                                        `);
+                            }
+                        }
+                    });
+                    $('button[name="deleteBrickAction"]').val(-1);
+                    modalDeleteBrickObj.hide();
+                });
+
+                $('button[name="openModalDeleteBrick"]').click(function () {
+                    var brickId = $(this).val();
+                    /* Check for bad data */
+                    if (isNaN(brickId) || brickId == "") { return; }
+                    brickId = Number(brickId);
+                    if (brickId == -1) { return; }
+
+                    if (modalDeleteBrickObj == null) {
+                        modalDeleteBrickObj = new bootstrap.Modal(document.getElementById('modalDeleteBrick'), {});
+                    }
+                    const brickInfo = {
+                        id: brickId,
+                        brickName: $(`#brickName${brickId}`).text(),
+                        brickColor: $(`#brickColor${brickId}`).html(),
+                        brickSize: $(`#brickSize${brickId}`).text(),
+                        brickPrice: $(`#brickPrice${brickId}`).text()
+                    }
+
+                    /* Fill the informations and show it */
+                    $("#modalDeleteBrickLabel").text(`Delete ${brickInfo['brickName']}`);
+                    $("#modalDeleteBrickName").text(brickInfo['brickName']);
+                    $("#modalDeleteBrickColor").html(brickInfo['brickColor']);
+                    $("#modalDeleteBrickSize").text(brickInfo['brickSize']);
+                    $("#modalDeleteBrickPrice").text(brickInfo['brickPrice']);
+                    $('button[name="deleteBrickAction"]').val(brickId);
+                    modalDeleteBrickObj.show();
+                });
+            }
+
+            reload_evh_delete();
+        </script>
+    }
+}

@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Web_Programming_Project.Data;
+using Web_Programming_Project.Data.Enum;
 using Web_Programming_Project.Models;
 
 namespace Web_Programming_Project.Controllers
@@ -20,10 +22,21 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Bricks
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string brickSearch = "", int brickSize = 0, int brickColorId = -1, string prevBrickPriceSort = "up")
         {
-            var applicationDbContext = _context.Brick.Include(b => b.BrickColorObj);
-            return View(await applicationDbContext.ToListAsync());
+            ViewData["prevBrickPriceSort"] = prevBrickPriceSort;
+            ViewData["brickSearch"] = brickSearch;
+            ViewData["brickColorId"] = brickColorId;
+            ViewData["brickSize"] = brickSize.ToString();
+            ViewBag.BrickColors = await _context.BrickColor.ToListAsync();
+            return View(await GetBrickAsync(brickSearch, brickSize, brickColorId, prevBrickPriceSort));
+        }
+
+        // GET: Boxes/Search
+        public async Task<IActionResult> Search(string brickSearch = "", int brickSize = 0, int brickColorId = -1, string prevBrickPriceSort = "up")
+        {
+            return PartialView("_BricksTable", await GetBrickAsync(brickSearch, brickSize, brickColorId, prevBrickPriceSort));
         }
 
         // GET: Bricks/Details/5
@@ -46,9 +59,11 @@ namespace Web_Programming_Project.Controllers
         }
 
         // GET: Bricks/Create
-        public IActionResult Create()
+        [HttpGet]
+        public async Task<IActionResult> Create()
         {
-            ViewData["BrickColorId"] = new SelectList(_context.BrickColor, "Id", "BrickColorName");
+            ViewData["BrickColors"] = await _context.BrickColor.ToArrayAsync();
+            ViewData["BrickColorId"] = -1;
             return View();
         }
 
@@ -65,11 +80,13 @@ namespace Web_Programming_Project.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BrickColorId"] = new SelectList(_context.BrickColor, "Id", "BrickColorName", brick.BrickColorId);
+            ViewData["BrickColors"] = await _context.BrickColor.ToArrayAsync();
+            ViewData["BrickColorId"] = brick.BrickColorId;
             return View(brick);
         }
 
         // GET: Bricks/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Brick == null)
@@ -82,7 +99,8 @@ namespace Web_Programming_Project.Controllers
             {
                 return NotFound();
             }
-            ViewData["BrickColorId"] = new SelectList(_context.BrickColor, "Id", "BrickColorName", brick.BrickColorId);
+            ViewData["BrickColors"] = await _context.BrickColor.ToArrayAsync();
+            ViewData["BrickColorId"] = brick.BrickColorId;
             return View(brick);
         }
 
@@ -118,33 +136,15 @@ namespace Web_Programming_Project.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BrickColorId"] = new SelectList(_context.BrickColor, "Id", "BrickColorName", brick.BrickColorId);
-            return View(brick);
-        }
-
-        // GET: Bricks/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Brick == null)
-            {
-                return NotFound();
-            }
-
-            var brick = await _context.Brick
-                .Include(b => b.BrickColorObj)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (brick == null)
-            {
-                return NotFound();
-            }
-
+            ViewData["BrickColors"] = await _context.BrickColor.ToArrayAsync();
+            ViewData["BrickColorId"] = brick.BrickColorId;
             return View(brick);
         }
 
         // POST: Bricks/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> DeleteAjaxConfirmed(int id)
         {
             if (_context.Brick == null)
             {
@@ -155,14 +155,48 @@ namespace Web_Programming_Project.Controllers
             {
                 _context.Brick.Remove(brick);
             }
-            
+
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return StatusCode(200);
         }
 
+        /// <summary>
+        /// Brick exist in context
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private bool BrickExists(int id)
         {
           return _context.Brick.Any(e => e.Id == id);
+        }
+
+
+        private async Task<List<Brick>> GetBrickAsync(string brickSearch = "", int brickSize = 0, int brickColorId = -1, string prevBrickPriceSort = "up")
+        {
+            IQueryable<Brick> result = _context.Brick;
+            if (!string.IsNullOrWhiteSpace(brickSearch))
+            {
+                result = result.Where(brick => brick.BrickName.Contains(brickSearch));
+            }
+            if (brickSize != 0)
+            {
+                result = result.Where(brick => brick.BrickSize.Equals((BrickSizeEnum)brickSize));
+            }
+            if (brickColorId != -1)
+            {
+                result = result.Where(brick => brick.BrickColorId.Equals(brickColorId));
+            }
+
+            if (prevBrickPriceSort.Equals("up"))
+            {
+                result = result.OrderBy(brick => brick.BrickPrice);
+            }
+            else
+            {
+                result = result.OrderByDescending(brick => brick.BrickPrice);
+            }
+            result = result.Include(b => b.BrickColorObj);
+            return await result.ToListAsync();
         }
     }
 }

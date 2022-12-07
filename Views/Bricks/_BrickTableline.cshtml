@@ -1,0 +1,28 @@
+﻿@model Brick
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<tr id="brickLine@(Model.Id)">
+    <td id="brickName@(Model.Id)">
+        @Html.DisplayFor(modelItem => Model.BrickName)
+    </td>
+    <td id="brickColor@(Model.Id)">
+        <div style ="color:rgba(@(Model.BrickColorObj.BrickColorRed),@(Model.BrickColorObj.BrickColorGreen),@(Model.BrickColorObj.BrickColorBlue),1) !important">
+            <i class="fa-solid fa-stop me-2"></i> @Html.DisplayFor(modelItem => Model.BrickColorObj.BrickColorName)
+        </div>
+    </td>
+    <td id="brickSize@(Model.Id)">
+        @Html.DisplayFor(modelItem => Model.BrickSize)
+    </td>
+    <td id="brickPrice@(Model.Id)">
+        @Html.DisplayFor(modelItem => Model.BrickPrice)
+    </td>
+    @if (User.Identity.IsAuthenticated)
+    {
+    <td>
+        <a asp-action="Edit" class="btn btn-warning btn-sm" asp-route-id="@Model.Id"><i class="fa-solid fa-pen-to-square"></i></a>
+        <button class="btn btn-danger btn-sm" name="openModalDeleteBrick" value="@Model.Id"><i class="fa-solid fa-trash"></i></button>
+    </td>
+    }
+</tr>

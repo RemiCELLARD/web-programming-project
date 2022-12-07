@@ -94,6 +94,9 @@
             data: dataSearch,
             success : function (data) {
                 $("#list-brick-colors").html(data);
+                if (typeof reload_evh_delete === 'function'){
+                    reload_evh_delete();
+                }
             },
             error : function (err) {
                 $("#list-theme").html(`
@@ -102,6 +105,9 @@
                         <p>Error with the server... Please try again later.</p>
                     </div>
                 `);
+                if (typeof reload_evh_delete === 'function'){
+                    reload_evh_delete();
+                }
             }
         });
     }
@@ -181,76 +187,80 @@
     {
         <script>
             var modalDeleteBrickColorObj = null;
-            $('button[name="deleteBrickColorAction"]').click(function() {
-                var brickColorId = $('button[name="deleteBrickColorAction"]').val();
+            function reload_evh_delete()
+            {
+                $('button[name="deleteBrickColorAction"]').click(function () {
+                    var brickColorId = $(this).val();
 
-                /* Check for bad data */
-                if (isNaN(brickColorId) || brickColorId == "") { return; }
-                brickColorId = Number(brickColorId);
-                if (brickColorId == -1) { return; }
+                    /* Check for bad data */
+                    if (isNaN(brickColorId) || brickColorId == "") { return; }
+                    brickColorId = Number(brickColorId);
+                    if (brickColorId == -1) { return; }
 
-                /* Ajax Request */
-                $.ajax({
-                    url: "/BrickColors/DeleteAjaxConfirmed",
-                    type: "POST",
-                    data: {
-                        id: brickColorId
-                    },
+                    /* Ajax Request */
+                    $.ajax({
+                        url: "/BrickColors/DeleteAjaxConfirmed",
+                        type: "POST",
+                        data: {
+                            id: brickColorId
+                        },
 
-                    success: function (data) {
-                        $(`#brickColorCard${brickColorId}`).remove();
-                        if($.trim($("#list-brick-colors").html()) == "")
-                        {
-                            $("#list-brick-colors").html(`
-                            <div class="alert alert-danger col-12 col-md-12" role="alert">
-                            <h4 class="alert-heading">Ooopppss !</h4>
-                            <p>No data exist in the database</p>
-                            </div>
-                            `);
+                        success: function (data) {
+                            $(`#brickColorCard${brickColorId}`).remove();
+                            if ($.trim($("#list-brick-colors").html()) == "") {
+                                $("#list-brick-colors").html(`
+                                        <div class="alert alert-danger col-12 col-md-12" role="alert">
+                                        <h4 class="alert-heading">Ooopppss !</h4>
+                                        <p>No data exist in the database</p>
+                                        </div>
+                                        `);
+                            }
+                        },
+                        error: function (err) {
+                            $(`#brickColorCard${brickColorId}`).remove();
+                            if ($.trim($("#list-brick-colors").html()) == "") {
+                                $("#list-brick-colors").html(`
+                                        <div class="alert alert-danger col-12 col-md-12" role="alert">
+                                        <h4 class="alert-heading">Ooopppss !</h4>
+                                        <p>No data exist in the database</p>
+                                        </div>
+                                        `);
+                            }
                         }
-                    },
-                    error: function (err) {
-                        $(`#brickColorCard${brickColorId}`).remove();
-                        if ($.trim($("#list-brick-colors").html()) == "")
-                        {
-                            $("#list-brick-colors").html(`
-                            <div class="alert alert-danger col-12 col-md-12" role="alert">
-                            <h4 class="alert-heading">Ooopppss !</h4>
-                            <p>No data exist in the database</p>
-                            </div>
-                            `);
-                        }
-                    }
+                    });
+                    $('button[name="deleteBrickColorAction"]').val(-1);
+                    modalDeleteBrickColorObj.hide();
                 });
-                $('button[name="deleteBrickColorAction"]').val(-1);
-                modalDeleteBrickColorObj.hide();
-            });
 
-            $('button[name="openModalDeleteBrickColor"]').click(function() {
-                var brickColorId = $(this).val();
-                /* Check for bad data */
-                if (isNaN(brickColorId) || brickColorId == "") { return; }
-                brickColorId = Number(brickColorId);
-                if (brickColorId == -1) { return; }
-                console.log("ww");
-                if (modalDeleteBrickColorObj == null) {
-                    modalDeleteBrickColorObj = new bootstrap.Modal(document.getElementById('modalDeleteBrickColor'), {});
-                }
-                const brickColorInfo = {
-                    id: brickColorId,
-                    brickColorName: $(`#brickColorName${brickColorId}`).text(),
-                    brickColorDisplay: $(`#brickColorDisplay${brickColorId}`).html(),
-                    brickColorRgba: $(`#brickColorRgba${brickColorId}`).text()
-                }
+                $('button[name="openModalDeleteBrickColor"]').click(function () {
+                    var brickColorId = $(this).val();
+                    console.log("yes");
+                    console.log(brickColorId);
 
-                /* Fill the informations and show it */
-                $("#modalDeleteBrickColorLabel").text(`Delete ${brickColorInfo['brickColorName']}`);
-                $("#modalDeleteBrickColorName").text(brickColorInfo['brickColorName']);
-                $("#modalDeleteBrickColorDisplay").html(brickColorInfo['brickColorDisplay']);
-                $("#modalDeleteBrickColorRgba").text(brickColorInfo['brickColorRgba']);
-                $('button[name="deleteBrickColorAction"]').val(brickColorId);
-                modalDeleteBrickColorObj.show();
-            });
+                    /* Check for bad data */
+                    if (isNaN(brickColorId) || brickColorId == "") { return; }
+                    brickColorId = Number(brickColorId);
+                    if (brickColorId == -1) { return; }
+                    console.log("ww");
+                    if (modalDeleteBrickColorObj == null) {
+                        modalDeleteBrickColorObj = new bootstrap.Modal(document.getElementById('modalDeleteBrickColor'), {});
+                    }
+                    const brickColorInfo = {
+                        id: brickColorId,
+                        brickColorName: $(`#brickColorName${brickColorId}`).text(),
+                        brickColorDisplay: $(`#brickColorDisplay${brickColorId}`).html(),
+                        brickColorRgba: $(`#brickColorRgba${brickColorId}`).text()
+                    }
+
+                    /* Fill the informations and show it */
+                    $("#modalDeleteBrickColorLabel").text(`Delete ${brickColorInfo['brickColorName']}`);
+                    $("#modalDeleteBrickColorName").text(brickColorInfo['brickColorName']);
+                    $("#modalDeleteBrickColorDisplay").html(brickColorInfo['brickColorDisplay']);
+                    $("#modalDeleteBrickColorRgba").text(brickColorInfo['brickColorRgba']);
+                    $('button[name="deleteBrickColorAction"]').val(brickColorId);
+                    modalDeleteBrickColorObj.show();
+                });
+            }
         </script>
     }
 }
