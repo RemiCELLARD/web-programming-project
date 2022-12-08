@@ -1,16 +1,14 @@
 ﻿@model Web_Programming_Project.Models.BrickColor
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create a brick color";
 }
 
-<h1>Create</h1>
-
-<h4>BrickColor</h4>
+<h1>Create <small class="text-muted h5 fst-italic">Brick color</small></h1>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+<form asp-action="Create">
+    <div class="row">
+        <div class="col-md-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-floating mt-2">
                 <input asp-for="BrickColorName" class="form-control" />
@@ -25,16 +23,13 @@
                 <input asp-for="BrickColorAlpha" class="form-control visually-hidden disabled" />
             </div>
 
-            <div class="form-group mt-2">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="form-group mt-2">
+        <input type="submit" value="Create" class="btn btn-primary" />
+        <a asp-action="Index">Back to List</a>
+    </div>
+</form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -2,16 +2,14 @@
 @model Web_Programming_Project.Models.Brick
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create a brick";
 }
 
-<h1>Create</h1>
-
-<h4>Brick</h4>
+<h1>Create <small class="text-muted h5 fst-italic">Brick</small></h1>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+<form asp-action="Create">
+    <div class="row">
+        <div class="col-md-5">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-floating mt-2">
                 <input asp-for="BrickName" class="form-control" />
@@ -48,16 +46,13 @@
                 <label asp-for="BrickPrice" class="control-label"></label>
                 <span asp-validation-for="BrickPrice" class="text-danger"></span>
             </div>
-            <div class="form-group mt-2">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="form-group mt-2">
+        <input type="submit" value="Create" class="btn btn-primary" />
+        <a asp-action="Index">Back to List</a>
+    </div>
+</form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

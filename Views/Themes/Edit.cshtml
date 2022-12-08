@@ -2,16 +2,14 @@
 @model Web_Programming_Project.Models.Theme
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit " + Model.ThemeName;
 }
 
-<h1>Edit</h1>
-
-<h4>Theme</h4>
+<h1>Edit <small class="text-muted h5 fst-italic">Theme > @(Model.ThemeName)</small></h1>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit" enctype="multipart/form-data">
+<form asp-action="Edit" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-6">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-floating mt-2">
@@ -20,10 +18,18 @@
                 <span asp-validation-for="ThemeName" class="text-danger"></span>
             </div>
             <div class="form-floating mt-2">
-                <textarea asp-for="ThemeDescription" class="form-control"></textarea>
+                <select asp-for="ThemeAgeCategory" class="form-select" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>()"></select>
+                <label asp-for="ThemeAgeCategory" class="control-label"></label>
+                <span asp-validation-for="ThemeAgeCategory" class="text-danger"></span>
+            </div>
+            <div class="form-floating mt-2">
+                <textarea asp-for="ThemeDescription" class="form-control h-100"></textarea>
                 <label asp-for="ThemeDescription" class="control-label"></label>
                 <span asp-validation-for="ThemeDescription" class="text-danger"></span>
             </div>
+        </div>
+        <div class="col-2"></div>
+        <div class="col-4">
             <div class="form-group mt-2" id="imgRenderFormGroup">
                 <h5>Current image</h5>
                 <img src="@("~/uploads/images/Themes/"+Model.ThemeImgName)" asp-append-version="true" class="render-img ms-2" id="imgRenderView" />
@@ -35,21 +41,13 @@
                 <input asp-for="ThemeImgFile" class="form-control" type="file" accept="image/png,image/jpeg,image/jpg" id="imgFormInput" />
                 <span asp-validation-for="ThemeImgFile" class="text-danger"></span>
             </div>
-            <div class="form-floating mt-2">
-                <select asp-for="ThemeAgeCategory" class="form-select" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>()"></select>
-                <label asp-for="ThemeAgeCategory" class="control-label"></label>
-                <span asp-validation-for="ThemeAgeCategory" class="text-danger"></span>
-            </div>
-            <div class="form-group mt-2">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="form-group mt-2">
+        <input type="submit" value="Save" class="btn btn-primary" />
+        <a asp-action="Index">Back to List</a>
+    </div>
+</form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
