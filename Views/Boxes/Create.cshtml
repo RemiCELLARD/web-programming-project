@@ -1,4 +1,5 @@
-﻿@using Web_Programming_Project.Data.Enum;
+﻿@using System.ComponentModel.DataAnnotations;
+@using Web_Programming_Project.Data.Enum;
 @model Web_Programming_Project.Models.Box
 
 @{
@@ -9,51 +10,138 @@
 
 <h4>Box</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-floating mt-2">
-                <input asp-for="BoxName" class="form-control" />
-                <label asp-for="BoxName" class="control-label"></label>
-                <span asp-validation-for="BoxName" class="text-danger"></span>
+<form asp-action="Create" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-5">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-floating mt-2">
+                    <input asp-for="BoxName" class="form-control" />
+                    <label asp-for="BoxName" class="control-label"></label>
+                    <span asp-validation-for="BoxName" class="text-danger"></span>
+                </div>
+                <div class="form-floating mt-2">
+                    <select asp-for="BoxThemeId" class="form-select" asp-items="ViewBag.BoxThemeId"></select>
+                    <label asp-for="BoxThemeId" class="control-label"></label>
+                </div>
+                <div class="form-floating mt-2">
+                    <textarea asp-for="BoxDescription" class="form-control"></textarea>
+                    <label asp-for="BoxDescription" class="control-label"></label>
+                    <span asp-validation-for="BoxDescription" class="text-danger"></span>
+                </div>
+                <div class="form-floating mt-2">
+                    <select asp-for="BoxAgeCategory" class="form-select" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>()"></select>
+                    <label asp-for="BoxAgeCategory" class="control-label"></label>
+                    <span asp-validation-for="BoxAgeCategory" class="text-danger"></span>
+                </div>
+                <div class="form-group mt-2 visually-hidden" id="imgRenderFormGroup">
+                    <h5>Current image</h5>
+                    <img src="/uploads/images/Boxes/default.png" asp-append-version="true" class="render-img ms-2" id="imgRenderView" />
+                    <input asp-for="BoxImgName" class="form-control visually-hidden" id="imgNameEdit" />
+                    <button class="btn btn-danger" type="button" onclick="doDeleteImg()"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                <div class="form-group mt-2">
+                    <label asp-for="BoxImgFile" class="control-label"></label>
+                    <input asp-for="BoxImgFile" class="form-control" type="file" accept="image/png,image/jpeg,image/jpg" id="imgFormInput" />
+                    <span asp-validation-for="BoxImgFile" class="text-danger"></span>
+                </div>
+                <div class="form-group mt-2">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                    <a asp-action="Index">Back to List</a>
+                </div>
+        </div>
+        <div class="col-3"></div>
+        <div class="col-4">
+            <div class="card list-bricks-overflow overflow-hidden">
+                <div class="card-header">
+                    <h5 class="float-start">List of available bricks</h5>
+                    <div class="badge rounded-pill bg-primary float-end">
+                        <span id="boxTotalPrice">0.00 €</span>
+                    </div>
+                    <input class="visually-hidden" name="boxPrice" type="number" value="0">
+                </div>
+                <div class="card-body overflow-auto p-3">
+                    @foreach (Brick brick in ViewBag.Bricks)
+                {
+                    <div class="input-group input-group-sm mb-2">
+                        <div class="input-group-text">
+                            <input class="form-check-input me-1" name="brickIds" type="checkbox" value="@(brick.Id)" id="brickIdCheck">
+                            <input class="visually-hidden" name="brickPrice@(brick.Id)" type="number" value="@(brick.BrickPrice)">
+                            <label class="form-check-label ms-1" for="brickIdCheck" data-bs-toggle="tooltip" data-bs-html="true" title="<b>@(brick.BrickName)</b><br/><em>@(brick.BrickSize.GetDisplayName())</em><br/><em>@string.Format("{0:0.00}", brick.BrickPrice) EUR</em>" >@(brick.BrickName) <i style='color:rgba(@(brick.BrickColorObj.BrickColorRed),@(brick.BrickColorObj.BrickColorGreen),@(brick.BrickColorObj.BrickColorBlue),@(brick.BrickColorObj.BrickColorAlpha))' class='fa-solid fa-stop me-2'></i></label>
+                        </div>
+                            <input type="number" class="form-control" step="1" min="1" disabled name="brickAmount@(brick.Id)" oninput="updateAmountOfBrick()" aria-label="Amount">
+                    </div>
+                }
+                </div>
             </div>
-            <div class="form-floating mt-2">
-                <select asp-for="BoxThemeId" class="form-select" asp-items="ViewBag.BoxThemeId"></select>
-                <label asp-for="BoxThemeId" class="control-label"></label>
-            </div>
-            <div class="form-floating mt-2">
-                <textarea asp-for="BoxDescription" class="form-control"></textarea>
-                <label asp-for="BoxDescription" class="control-label"></label>
-                <span asp-validation-for="BoxDescription" class="text-danger"></span>
-            </div>
-            <div class="form-floating mt-2">
-                <select asp-for="BoxAgeCategory" class="form-select" asp-items="Html.GetEnumSelectList<AgeCategoryEnum>()"></select>
-                <label asp-for="BoxAgeCategory" class="control-label"></label>
-                <span asp-validation-for="BoxAgeCategory" class="text-danger"></span>
-            </div>
-            <div class="form-group mt-2 visually-hidden" id="imgRenderFormGroup">
-                <h5>Current image</h5>
-                <img src="/uploads/images/Boxes/default.png" asp-append-version="true" class="render-img ms-2" id="imgRenderView" />
-                <input asp-for="BoxImgName" class="form-control visually-hidden" id="imgNameEdit" />
-                <button class="btn btn-danger" type="button" onclick="doDeleteImg()"><i class="fa-solid fa-trash"></i></button>
-            </div>
-            <div class="form-group mt-2">
-                <label asp-for="BoxImgFile" class="control-label"></label>
-                <input asp-for="BoxImgFile" class="form-control" type="file" accept="image/png,image/jpeg,image/jpg" id="imgFormInput" />
-                <span asp-validation-for="BoxImgFile" class="text-danger"></span>
-            </div>
-            <div class="form-group mt-2">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+</form>
 
 @section Scripts {
+    <script>
+
+        // Create our number formatter.
+        const formatter = new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: 'EUR',
+
+            // These options are needed to round to whole numbers if that's what you want.
+            minimumFractionDigits: 2, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+            maximumFractionDigits: 2 // (causes 2500.99 to be printed as $2,501)
+        });
+
+        $('input[name="brickIds"]').click(function () {
+            var brickId = $(this).val();
+            var quantity = 0;
+            var price = 0;
+            /* Switch the state of the button */
+            $(`input[name="brickAmount${brickId}"]`).prop("disabled", !this.checked);
+            if (!this.checked) 
+            {
+                quantity = $(`input[name="brickAmount${brickId}"]`).val();
+                price = $(`input[name="brickPrice${brickId}"]`).val();
+                updateTotalPrice((quantity*price)*(-1))
+                $(`input[name="brickAmount${brickId}"]`).val("");
+            }
+            else
+            {
+                $(`input[name="brickAmount${brickId}"]`).val("1");
+                quantity = $(`input[name="brickAmount${brickId}"]`).val();
+                price = $(`input[name="brickPrice${brickId}"]`).val();
+                updateTotalPrice((quantity*price))
+            }
+        });
+
+        function updateAmountOfBrick () {
+            var $boxes = $('input[name=brickIds]:checked');
+            updateTotalPrice($(`input[name="boxPrice"]`).val() * -1);
+            $boxes.each(function(){
+                var brickId = $(this).val();
+                quantity = $(`input[name="brickAmount${brickId}"]`).val();
+                price = $(`input[name="brickPrice${brickId}"]`).val();
+                updateTotalPrice((quantity * price));
+            });
+        }
+
+        function updateTotalPrice (updatePriceNumber)
+        {
+            var price = $(`input[name="boxPrice"]`).val();
+
+            /* Check for bad data */
+            if (isNaN(updatePriceNumber) || updatePriceNumber == "") { return; }
+            updatePriceNumber = Number(updatePriceNumber);
+            if (updatePriceNumber == -1) { return; }
+            
+            if (isNaN(price) || price == "") { return; }
+            price = Number(price);
+            if (price == -1) { return; }
+
+            /* Update data */
+            price = price + updatePriceNumber;
+            $(`input[name="boxPrice"]`).val(price);
+            $("#boxTotalPrice").text(formatter.format(price));
+        }
+    </script>
+
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

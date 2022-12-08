@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace Web_Programming_Project.Data.Enum
 {
@@ -196,5 +197,17 @@ namespace Web_Programming_Project.Data.Enum
         FourElevenOneThird = 95,
         [Display(Name = "4 x 12 x 0.33")]
         FourTwelveOneThird = 96
+    }
+
+    public static class EnumExtensions
+    {
+        public static string GetDisplayName(this BrickSizeEnum enumValue)
+        {
+            return enumValue.GetType()
+                            .GetMember(enumValue.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()
+                            .GetName();
+        }
     }
 }

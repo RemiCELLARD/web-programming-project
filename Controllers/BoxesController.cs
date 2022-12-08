@@ -60,15 +60,23 @@ namespace Web_Programming_Project.Controllers
             {
                 return NotFound();
             }
-
+            box.BoxBricksInBox = await _context.BrickInBox.Include(b => b.BrickInBoxBrick).Include(b => b.BrickInBoxBrick.BrickColorObj).Where(b => b.BrickInBoxBoxId == id).ToListAsync();
+            float totalPrice = 0f;
+            /* Get price for all bricks */
+            foreach (BrickInBox pack in box.BoxBricksInBox)
+            {
+                totalPrice += pack.BrickInBoxBrick.BrickPrice * pack.BrickInBoxQuantity;
+            }
+            ViewData["totalPrice"] = totalPrice.ToString("0.00");
             return View(box);
         }
 
         // GET: Boxes/Create
         [Authorize]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             ViewData["BoxThemeId"] = new SelectList(_context.Theme, "Id", "ThemeName");
+            ViewBag.Bricks = await _context.Brick.Include(b => b.BrickColorObj).ToListAsync();
             return View();
         }
 
@@ -78,12 +86,16 @@ namespace Web_Programming_Project.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxImgFile,BoxDescription")] Box box)
+        public async Task<IActionResult> Create([Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxImgFile,BoxDescription")] Box box, string[] brickIds)
         {
             if (ModelState.IsValid)
             {
                 box.BoxImgName = await _context.ImgManager.UploadImage(_boxImgRoot, box.BoxImgFile);
                 _context.Add(box);
+                await _context.SaveChangesAsync();
+
+                Box dbBox = await _context.Box.OrderByDescending(box => box.Id).FirstOrDefaultAsync();
+                UpdateBricksInBox(brickIds, dbBox);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -106,6 +118,17 @@ namespace Web_Programming_Project.Controllers
                 return NotFound();
             }
             ViewData["BoxThemeId"] = new SelectList(_context.Theme, "Id", "ThemeName", box.BoxThemeId);
+            ViewBag.Bricks = await _context.Brick.Include(b => b.BrickColorObj).ToListAsync();
+            
+            box.BoxBricksInBox = await _context.BrickInBox.Include(b => b.BrickInBoxBrick).Include(b => b.BrickInBoxBrick.BrickColorObj).Where(b => b.BrickInBoxBoxId == id).ToListAsync();
+            float totalPrice = 0f;
+            /* Get price for all bricks */
+            foreach (BrickInBox pack in box.BoxBricksInBox)
+            {
+                totalPrice += pack.BrickInBoxBrick.BrickPrice * pack.BrickInBoxQuantity;
+            }
+            ViewData["totalPrice"] = totalPrice;
+
             return View(box);
         }
 
@@ -115,7 +138,7 @@ namespace Web_Programming_Project.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxImgFile,BoxDescription")] Box box)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxImgFile,BoxDescription")] Box box, string[] brickIds)
         {
             if (id != box.Id)
             {
@@ -138,6 +161,8 @@ namespace Web_Programming_Project.Controllers
                             box.BoxImgName = null;
                         }
                     }
+                    box.BoxBricksInBox = await _context.BrickInBox.Include(b => b.BrickInBoxBrick).Include(b => b.BrickInBoxBrick.BrickColorObj).Where(b => b.BrickInBoxBoxId == id).ToListAsync();
+                    UpdateBricksInBox(brickIds, box);
                     _context.Update(box);
                     await _context.SaveChangesAsync();
                 }
@@ -155,6 +180,7 @@ namespace Web_Programming_Project.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["BoxThemeId"] = new SelectList(_context.Theme, "Id", "ThemeName", box.BoxThemeId);
+            box.BoxBricksInBox = await _context.BrickInBox.Include(b => b.BrickInBoxBrick).Include(b => b.BrickInBoxBrick.BrickColorObj).Where(b => b.BrickInBoxBoxId == id).ToListAsync();
             return View(box);
         }
 
@@ -222,6 +248,58 @@ namespace Web_Programming_Project.Controllers
             }
             result = result.Include(b => b.BoxTheme);
             return await result.ToListAsync();
+        }
+
+        /// <summary>
+        /// Create/Delete or Update the table junction
+        /// </summary>
+        /// <param name="selectBricks">Brick selected in form</param>
+        /// <param name="boxToUpdate">Box object</param>
+        private void UpdateBricksInBox(string[] selectBricks, Box boxToUpdate)
+        {
+            if (selectBricks == null)
+            {
+                boxToUpdate.BoxBricksInBox = new List<BrickInBox>();
+                return;
+            }
+
+            var selectBricksHS = new HashSet<string>(selectBricks);
+            var boxBricks = new HashSet<int>(boxToUpdate.BoxBricksInBox.Select(c => c.BrickInBoxBrickId));
+            foreach (Brick brick in _context.Brick)
+            {
+                if (selectBricksHS.Contains(brick.Id.ToString()))
+                {
+                    string inputKey = "brickAmount" + brick.Id.ToString();
+                    int brickAmount;
+                    if (Request.Form.ContainsKey(inputKey))
+                    {
+                        if (int.TryParse(Request.Form[inputKey], out brickAmount))
+                        {
+                            if (!boxBricks.Contains(brick.Id))
+                            {
+                                BrickInBox pack = new BrickInBox { BrickInBoxBoxId = boxToUpdate.Id, BrickInBoxBrickId = brick.Id, BrickInBoxQuantity = brickAmount };
+                                boxToUpdate.BoxBricksInBox.Add(pack);
+                                _context.Add(pack);
+                            }
+                            else
+                            {
+                                /* Edit value */
+                                BrickInBox pack = boxToUpdate.BoxBricksInBox.FirstOrDefault(i => i.BrickInBoxBrickId == brick.Id);
+                                pack.BrickInBoxQuantity = brickAmount;
+                                _context.Update(pack);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (boxBricks.Contains(brick.Id))
+                    {
+                        BrickInBox brickToRemove = boxToUpdate.BoxBricksInBox.FirstOrDefault(i => i.BrickInBoxBrickId == brick.Id);
+                        _context.Remove(brickToRemove);
+                    }
+                }
+            }
         }
     }
 }

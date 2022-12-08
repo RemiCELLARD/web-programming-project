@@ -67,3 +67,7 @@ body {
     min-width: 120px;
     max-width: 180px;
 }
+
+.list-bricks-overflow {
+    height: 20em !important;
+}
