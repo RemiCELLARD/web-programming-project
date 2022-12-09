@@ -6,11 +6,11 @@
 }
 
 <div class="text-center mb-4">
-    <h1>@(Model.BoxName)</h1>
-    <img src="@("~/uploads/images/Boxes/"+Model.BoxImgName)" asp-append-version="true" class="render-img mt-2 mb-4" alt="...">
+    <h1 id="boxName@(Model.Id)">@(Model.BoxName)</h1>
+    <img id="boxImg@(Model.Id)" src="@("~/uploads/images/Boxes/"+Model.BoxImgName)" asp-append-version="true" class="render-img mt-2 mb-4" alt="...">
     <h5 class="text-muted fst-italic">
-        <small class="me-4"><i class="fa-solid fa-list"></i> @Html.DisplayFor(model => model.BoxTheme.ThemeName)</small>
-        <small class="ms-4"><i class="fa-solid fa-cake-candles"></i> @Html.DisplayFor(model => model.BoxAgeCategory)</small>
+        <small class="me-4" id="boxThemeName@(Model.Id)"><i class="fa-solid fa-list"></i> @Html.DisplayFor(model => model.BoxTheme.ThemeName)</small>
+        <small class="ms-4" id="boxAgeCategory@(Model.Id)"><i class="fa-solid fa-cake-candles"></i> @Html.DisplayFor(model => model.BoxAgeCategory)</small>
     </h5>
 </div>
 
@@ -53,7 +53,99 @@
 <div>
     @if (User.Identity.IsAuthenticated)
     {
-        <a class="badge bg-warning text-dark" asp-action="Edit" asp-route-id="@Model?.Id"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+        <button class="btn btn-sm btn-danger text-light" name="openModalDeleteBox" value="@Model.Id"><i class="fa-solid fa-trash"></i> Delete</button>
+        <a class="btn btn-sm btn-warning text-dark" asp-action="Edit" asp-route-id="@Model?.Id"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
     }
-    <a class="badge bg-primary text-light" asp-action="Index"><i class="fa-solid fa-list"></i> Back to List</a>
+    <a class="btn btn-sm btn-primary text-light" asp-action="Index"><i class="fa-solid fa-list"></i> Back to List</a>
 </div>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <!-- Delete Popup -->
+    <!-- Modal -->
+    <div class="modal fade" id="modalDeleteBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalDeleteBoxLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDeleteBoxLabel">Delete a box</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure to delete this box ?
+                    <br/>
+                    <div class="card mt-3 h-100 text-center">
+                        <img id="modalDeleteBoxImg" src="/uploads/images/Boxes/default.png" class="mx-auto card-img-top render-img mt-4" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title" id="modalDeleteBoxName">Name</h5>
+                            <h6 class="card-subtitle mb-2 text-muted" id="modalDeleteBoxAgeCategory"></h6>
+                            <p class="card-text" id="modalDeleteBoxThemeName"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" name="deleteBoxAction" value="-1" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            var modalDeleteBoxObj = null;
+            $('button[name="deleteBoxAction"]').click(function () {
+                var boxId = $(this).val();
+
+                /* Check for bad data */
+                if (isNaN(boxId) || boxId == "") { return; }
+                boxId = Number(boxId);
+                if (boxId == -1) { return; }
+
+                /* Ajax Request */
+                $.ajax({
+                    url: "/Boxes/DeleteAjaxConfirmed",
+                    type: "POST",
+                    data: {
+                        id: boxId,
+                        redirect: true
+                    },
+                    success: function (data) {
+                        window.location.href = "/Boxes";
+                    },
+                    error: function (err) { /* TODO : add error notification */ }
+                });
+            });
+
+            $('button[name="openModalDeleteBox"]').click(function () {
+                var boxId = $(this).val();
+                /* Check for bad data */
+                if (isNaN(boxId) || boxId == "") { return; }
+                boxId = Number(boxId);
+                if (boxId == -1) { return; }
+
+                if (modalDeleteBoxObj == null) {
+                    modalDeleteBoxObj = new bootstrap.Modal(document.getElementById('modalDeleteBox'), {});
+                }
+                const boxInfo = {
+                    id: boxId,
+                    boxName: $(`#boxName${boxId}`).text(),
+                    boxImg: $(`#boxImg${boxId}`).attr('src'),
+                    boxAgeCategory: $(`#boxAgeCategory${boxId}`).html(),
+                    boxThemeName: $(`#boxThemeName${boxId}`).text()
+                }
+
+                /* Fill the informations and show it */
+                $("#modalDeleteBoxLabel").text(`Delete ${boxInfo['boxName']}`);
+                $("#modalDeleteBoxName").text(boxInfo['boxName']);
+                $("#modalDeleteBoxAgeCategory").html(boxInfo['boxAgeCategory']);
+                $("#modalDeleteBoxThemeName").text(boxInfo['boxThemeName']);
+                $("#modalDeleteBoxImg").attr('src', boxInfo['boxImg']);
+                $('button[name="deleteBoxAction"]').val(boxId);
+                modalDeleteBoxObj.show();
+            });
+        </script>
+    }
+}
