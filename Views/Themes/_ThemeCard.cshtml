@@ -11,7 +11,7 @@
             <div class="flex-grow-1 ms-3">
                 <h5 class="card-title" id="themeName@(Model.Id)">@Html.DisplayFor(modelItem => Model.ThemeName)</h5>
                 <h6 class="card-subtitle mb-2 text-muted" id="themeAgeCategory@(Model.Id)"><i class="fa-solid fa-cake-candles"></i> @Html.DisplayFor(modelItem => Model.ThemeAgeCategory)</h6>
-                <p class="card-text" id="themeDescription@(Model.Id)">@Html.DisplayFor(modelItem => Model.ThemeDescription)</p>
+                <p class="card-text pe-3" id="themeDescription@(Model.Id)">@Html.DisplayFor(modelItem => Model.ThemeDescription)</p>
                 <p class="card-text">
                     <a href="/Boxes?boxThemeId=@Model.Id" class="btn btn-primary">View associated boxes</a>
                     @if (User.Identity.IsAuthenticated)
