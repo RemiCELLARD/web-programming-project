@@ -36,8 +36,11 @@
                 </div>
                 <div class="modal-body">
                     Are you sure to delete this color ?
-                    <br/>
-                    <div class="card mt-3 h-100 text-center">
+                    <div class="alert alert-danger d-flex align-items-center mt-2" role="alert">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                        <div>Removing this colour will remove the bricks associated with it.</div>
+                    </div>
+                    <div class="card mt-1 h-100 text-center">
                         <div class="card-img-top mt-4" id="modalDeleteBrickColorDisplay"></div>
                         <div class="card-body">
                             <h5 class="card-title" id="modalDeleteBrickColorName">Name</h5>
@@ -261,6 +264,7 @@
                     modalDeleteBrickColorObj.show();
                 });
             }
+            reload_evh_delete();
         </script>
     }
 }
