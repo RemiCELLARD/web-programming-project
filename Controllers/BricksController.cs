@@ -30,6 +30,15 @@ namespace Web_Programming_Project.Controllers
             ViewData["brickColorId"] = brickColorId;
             ViewData["brickSize"] = brickSize.ToString();
             ViewBag.BrickColors = await _context.BrickColor.ToListAsync();
+            if (Request.Cookies.ContainsKey("notifTitle") && Request.Cookies.ContainsKey("notifMsg") && Request.Cookies.ContainsKey("notifIcon"))
+            {
+                ViewData["notifTitle"] = Request.Cookies["notifTitle"];
+                ViewData["notifMsg"] = Request.Cookies["notifMsg"];
+                ViewData["notifIcon"] = Request.Cookies["notifIcon"];
+                Response.Cookies.Delete("notifTitle");
+                Response.Cookies.Delete("notifMsg");
+                Response.Cookies.Delete("notifIcon");
+            }
             return View(await GetBrickAsync(brickSearch, brickSize, brickColorId, prevBrickPriceSort));
         }
 
@@ -78,6 +87,9 @@ namespace Web_Programming_Project.Controllers
             {
                 _context.Add(brick);
                 await _context.SaveChangesAsync();
+                Response.Cookies.Append("notifTitle", "Creation of the brick");
+                Response.Cookies.Append("notifMsg", "Creation of the '" + brick.BrickName + "' brick successfully completed.");
+                Response.Cookies.Append("notifIcon", "check");
                 return RedirectToAction(nameof(Index));
             }
             ViewData["BrickColors"] = await _context.BrickColor.ToArrayAsync();
@@ -134,6 +146,9 @@ namespace Web_Programming_Project.Controllers
                         throw;
                     }
                 }
+                Response.Cookies.Append("notifTitle", "Edition of the brick");
+                Response.Cookies.Append("notifMsg", "Edition of the '" + brick.BrickName + "' brick successfully completed.");
+                Response.Cookies.Append("notifIcon", "check");
                 return RedirectToAction(nameof(Index));
             }
             ViewData["BrickColors"] = await _context.BrickColor.ToArrayAsync();

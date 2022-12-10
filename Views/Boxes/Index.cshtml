@@ -201,17 +201,10 @@
                                         </div>
                                         `);
                             }
+                            displayToast("Deletion of the box", "The box has been successfully removed.", "check");
                         },
                         error: function (err) {
-                            $(`#boxCard${boxId}`).remove();
-                            if ($.trim($("#list-boxes").html()) == "") {
-                                $("#list-boxes").html(`
-                                        <div class="alert alert-danger col-12 col-md-12" role="alert">
-                                        <h4 class="alert-heading">Ooopppss !</h4>
-                                        <p>No data exist in the database</p>
-                                        </div>
-                                        `);
-                            }
+                            displayToast("Deletion of the box", "Error when deleting the box.", "triangle-exclamation");
                         }
                     });
                     $('button[name="deleteBoxAction"]').val(-1);

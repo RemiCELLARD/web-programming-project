@@ -39,6 +39,15 @@ namespace Web_Programming_Project.Controllers
             ViewData["prevThemeSort"] = prevThemeSort;
             ViewData["themeSearch"] = themeSearch;
             ViewData["themeAgeRange"] = themeAgeRange.ToString();
+            if (Request.Cookies.ContainsKey("notifTitle") && Request.Cookies.ContainsKey("notifMsg") && Request.Cookies.ContainsKey("notifIcon"))
+            {
+                ViewData["notifTitle"] = Request.Cookies["notifTitle"];
+                ViewData["notifMsg"] = Request.Cookies["notifMsg"];
+                ViewData["notifIcon"] = Request.Cookies["notifIcon"];
+                Response.Cookies.Delete("notifTitle");
+                Response.Cookies.Delete("notifMsg");
+                Response.Cookies.Delete("notifIcon");
+            }
             return View(await GetThemeAsync(themeSearch, themeAgeRange, prevThemeSort));
         }
 
@@ -86,6 +95,9 @@ namespace Web_Programming_Project.Controllers
                 theme.ThemeImgName = await _context.ImgManager.UploadImage(_themeImgRoot, theme.ThemeImgFile);
                 _context.Add(theme);
                 await _context.SaveChangesAsync();
+                Response.Cookies.Append("notifTitle", "Creation of the theme");
+                Response.Cookies.Append("notifMsg", "Creation of the '"+theme.ThemeName+"' theme successfully completed.");
+                Response.Cookies.Append("notifIcon", "check");
                 return RedirectToAction(nameof(Index));
             }
             return View(theme);
@@ -151,6 +163,9 @@ namespace Web_Programming_Project.Controllers
                         throw;
                     }
                 }
+                Response.Cookies.Append("notifTitle", "Edition of the theme");
+                Response.Cookies.Append("notifMsg", "Edition of the '" + theme.ThemeName + "' theme successfully completed.");
+                Response.Cookies.Append("notifIcon", "check");
                 return RedirectToAction(nameof(Index));
             }
             return View(theme);

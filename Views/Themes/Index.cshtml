@@ -93,7 +93,6 @@
 
 @section Scripts {
 <script>
-
     $('select[name="themeAgeRange"]').change(function() { onSearchUpdate(); });
     $('input[name="themeSearch"]').on("input", function() { onSearchUpdate(); });
     $('button[name="prevThemeSort"]').click(function() { 
@@ -174,17 +173,10 @@
                                         </div>
                                         `);
                             }
+                            displayToast("Deletion of the theme", "The theme has been successfully removed.", "check");
                         },
                         error: function (err) {
-                            $(`#themeCard${themeId}`).remove();
-                            if ($.trim($("#list-themes").html()) == "") {
-                                $("#list-themes").html(`
-                                        <div class="alert alert-danger col-12 col-md-12" role="alert">
-                                        <h4 class="alert-heading">Ooopppss !</h4>
-                                        <p>No data exist in the database</p>
-                                        </div>
-                                        `);
-                            }
+                            displayToast("Deletion of the theme", "Error when deleting the theme.", "triangle-exclamation");
                         }
                     });
                     $(this).val(-1);

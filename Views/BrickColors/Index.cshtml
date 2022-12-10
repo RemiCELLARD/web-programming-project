@@ -218,17 +218,10 @@
                                         </div>
                                         `);
                             }
+                            displayToast("Deletion of the colour", "The colour has been successfully removed.", "check");
                         },
                         error: function (err) {
-                            $(`#brickColorCard${brickColorId}`).remove();
-                            if ($.trim($("#list-brick-colors").html()) == "") {
-                                $("#list-brick-colors").html(`
-                                        <div class="alert alert-danger col-12 col-md-12" role="alert">
-                                        <h4 class="alert-heading">Ooopppss !</h4>
-                                        <p>No data exist in the database</p>
-                                        </div>
-                                        `);
-                            }
+                            displayToast("Deletion of the colour", "Error when deleting the colour.", "triangle-exclamation");
                         }
                     });
                     $('button[name="deleteBrickColorAction"]').val(-1);

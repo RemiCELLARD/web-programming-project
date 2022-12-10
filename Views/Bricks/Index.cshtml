@@ -164,8 +164,6 @@
     </div>
 }
 
-
-
 @section Scripts {
 <script>
 
@@ -252,16 +250,10 @@
                                         </tr>
                                         `);
                             }
+                            displayToast("Deletion of the brick", "The brick has been successfully removed.", "check");
                         },
                         error: function (err) {
-                            $(`#brickLine${brickId}`).remove();
-                            if ($.trim($("#list-bricks").html()) == "") {
-                                $("#list-bricks").html(`
-                                        <tr class="text-danger">
-                                            <td colspan="5" class="text-center"><i class="fas fa-sad-tear"></i> Ooops, No brick found in database.</td>
-                                        </tr>
-                                        `);
-                            }
+                            displayToast("Deletion of the brick", "Error when deleting the brick.", "triangle-exclamation");
                         }
                     });
                     $('button[name="deleteBrickAction"]').val(-1);

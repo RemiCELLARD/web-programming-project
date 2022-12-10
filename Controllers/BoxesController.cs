@@ -36,6 +36,15 @@ namespace Web_Programming_Project.Controllers
             ViewData["boxThemeId"] = boxThemeId;
             ViewData["boxAgeRange"] = boxAgeRange.ToString();
             ViewBag.Themes = await _context.Theme.ToListAsync();
+            if (Request.Cookies.ContainsKey("notifTitle") && Request.Cookies.ContainsKey("notifMsg") && Request.Cookies.ContainsKey("notifIcon"))
+            {
+                ViewData["notifTitle"] = Request.Cookies["notifTitle"];
+                ViewData["notifMsg"] = Request.Cookies["notifMsg"];
+                ViewData["notifIcon"] = Request.Cookies["notifIcon"];
+                Response.Cookies.Delete("notifTitle");
+                Response.Cookies.Delete("notifMsg");
+                Response.Cookies.Delete("notifIcon");
+            }
             return View(await GetBoxAsync(boxSearch, boxAgeRange, boxThemeId, prevBoxSort));
         }
 
@@ -97,6 +106,9 @@ namespace Web_Programming_Project.Controllers
                 Box dbBox = await _context.Box.OrderByDescending(box => box.Id).FirstOrDefaultAsync();
                 UpdateBricksInBox(brickIds, dbBox);
                 await _context.SaveChangesAsync();
+                Response.Cookies.Append("notifTitle", "Creation of the box");
+                Response.Cookies.Append("notifMsg", "Creation of the '" + box.BoxName + "' box successfully completed.");
+                Response.Cookies.Append("notifIcon", "check");
                 return RedirectToAction(nameof(Index));
             }
             ViewData["BoxThemeId"] = new SelectList(_context.Theme, "Id", "ThemeName", box.BoxThemeId);
@@ -177,6 +189,9 @@ namespace Web_Programming_Project.Controllers
                         throw;
                     }
                 }
+                Response.Cookies.Append("notifTitle", "Edition of the box");
+                Response.Cookies.Append("notifMsg", "Edition of the '" + box.BoxName + "' box successfully completed.");
+                Response.Cookies.Append("notifIcon", "check");
                 return RedirectToAction(nameof(Index));
             }
             ViewData["BoxThemeId"] = new SelectList(_context.Theme, "Id", "ThemeName", box.BoxThemeId);
@@ -198,6 +213,9 @@ namespace Web_Programming_Project.Controllers
             {
                 await _context.ImgManager.DeleteImage(_boxImgRoot, box.BoxImgName);
                 _context.Box.Remove(box);
+                Response.Cookies.Append("notifTitle", "Deletion of the box");
+                Response.Cookies.Append("notifMsg", "The box has been successfully removed.");
+                Response.Cookies.Append("notifIcon", "check");
             }
             
             await _context.SaveChangesAsync();

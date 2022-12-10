@@ -29,6 +29,15 @@ namespace Web_Programming_Project.Controllers
             ViewData["brickColorFilterGreen"] = brickColorGreenSearch;
             ViewData["brickColorFilterBlue"] = brickColorBlueSearch;
             ViewData["brickColorFilterAlpha"] = brickColorAlphaSearch;
+            if (Request.Cookies.ContainsKey("notifTitle") && Request.Cookies.ContainsKey("notifMsg") && Request.Cookies.ContainsKey("notifIcon"))
+            {
+                ViewData["notifTitle"] = Request.Cookies["notifTitle"];
+                ViewData["notifMsg"] = Request.Cookies["notifMsg"];
+                ViewData["notifIcon"] = Request.Cookies["notifIcon"];
+                Response.Cookies.Delete("notifTitle");
+                Response.Cookies.Delete("notifMsg");
+                Response.Cookies.Delete("notifIcon");
+            }
             return View(await GetBrickColorsAsync(brickColorSearch, brickColorRedSearch, brickColorGreenSearch, brickColorBlueSearch, brickColorAlphaSearch, prevBrickColorSort));
         }
 
@@ -75,6 +84,9 @@ namespace Web_Programming_Project.Controllers
             {
                 _context.Add(brickColor);
                 await _context.SaveChangesAsync();
+                Response.Cookies.Append("notifTitle", "Creation of the colour");
+                Response.Cookies.Append("notifMsg", "Creation of the '" + brickColor.BrickColorName + "' colour successfully completed.");
+                Response.Cookies.Append("notifIcon", "check");
                 return RedirectToAction(nameof(Index));
             }
             return View(brickColor);
@@ -128,6 +140,9 @@ namespace Web_Programming_Project.Controllers
                         throw;
                     }
                 }
+                Response.Cookies.Append("notifTitle", "Edition of the colour");
+                Response.Cookies.Append("notifMsg", "Edition of the '" + brickColor.BrickColorName + "' colour successfully completed.");
+                Response.Cookies.Append("notifIcon", "check");
                 return RedirectToAction(nameof(Index));
             }
             return View(brickColor);

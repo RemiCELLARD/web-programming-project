@@ -6,6 +6,12 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
 });
 
+var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+var toastList = toastElList.map(function (toastEl) {
+    return new bootstrap.Toast(toastEl)
+});
+toastList.forEach(toast => toast.show());
+
 // Write your JavaScript code.
 $('#imgFormInput').change(() => {
     const file = $("#imgFormInput").prop('files')[0];
@@ -23,6 +29,25 @@ function doDeleteImg() {
     $("#imgRenderView").addClass("visually-hidden");
     $("#imgRenderFormGroup").addClass("visually-hidden");
     $("#imgFormInput").val(null);
+}
+
+function displayToast(title, message, icon) {
+    var htmlData = `<div class="toast" role="alert" data-bs-delay="7500" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto"><i class="fa-solid fa-${icon}"></i> ${title}</strong>
+                    <small class="text-muted">just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">${message}</div>
+            </div>`;
+    $('#toastEvents').append(htmlData);
+
+    /* Show last notif */
+    toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    toastList = toastElList.map(function (toastEl) {
+        return new bootstrap.Toast(toastEl)
+    });
+    toastList[toastList.length - 1].show();
 }
 
 $('#colorPickerInput').minicolors({

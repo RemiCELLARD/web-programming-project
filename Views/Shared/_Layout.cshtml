@@ -58,6 +58,22 @@
         </div>
     </footer>
 
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastEvents">
+        @if (ViewData["notifTitle"] is not null)
+        {
+            <div class="toast" role="alert" data-bs-delay="7500" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto"><i class="fa-solid fa-@ViewData["notifIcon"]"></i> @ViewData["notifTitle"]</strong>
+                    <small class="text-muted">just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    @ViewData["notifMsg"]
+                </div>
+            </div>
+        }
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/jquery.minicolors.js"></script>
