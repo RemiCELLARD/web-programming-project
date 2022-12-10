@@ -41,7 +41,7 @@
                         {
                             @foreach (BrickInBox pack in Model.BoxBricksInBox)
                             {
-                                <li class="list-group-item" data-bs-toggle="tooltip" data-bs-html="true" title="<b>@(pack.BrickInBoxBrick.BrickName)</b><br/><em>@(pack.BrickInBoxBrick.BrickSize.GetDisplayName())</em><br/><em>@string.Format("{0:0.00}", pack.BrickInBoxBrick.BrickPrice) EUR / Brick</em>"><i style='color:rgba(@(pack.BrickInBoxBrick.BrickColorObj.BrickColorRed),@(pack.BrickInBoxBrick.BrickColorObj.BrickColorGreen),@(pack.BrickInBoxBrick.BrickColorObj.BrickColorBlue),@(pack.BrickInBoxBrick.BrickColorObj.BrickColorAlpha))' class='fa-solid fa-stop me-2'></i> @(pack.BrickInBoxBrick.BrickName) <span class="badge bg-lego text-dark float-end">@(pack.BrickInBoxQuantity)</span></li>
+                                <li class="list-group-item" data-bs-toggle="tooltip" data-bs-html="true" title="<b>@(pack.BrickInBoxBrick.BrickName)</b><br/><em>Size : @(pack.BrickInBoxBrick.BrickSize.GetDisplayName())</em><br/><em>@string.Format("{0:0.00}", pack.BrickInBoxBrick.BrickPrice) EUR / Brick</em>"><i style='color:rgba(@(pack.BrickInBoxBrick.BrickColorObj.BrickColorRed),@(pack.BrickInBoxBrick.BrickColorObj.BrickColorGreen),@(pack.BrickInBoxBrick.BrickColorObj.BrickColorBlue),@(pack.BrickInBoxBrick.BrickColorObj.BrickColorAlpha))' class='fa-solid fa-stop me-2'></i> @(pack.BrickInBoxBrick.BrickName) <span class="badge bg-lego text-dark float-end">@(pack.BrickInBoxQuantity)</span></li>
                             }
                         }
                     </ul>
@@ -56,7 +56,6 @@
         <button class="btn btn-sm btn-danger text-light" name="openModalDeleteBox" value="@Model.Id"><i class="fa-solid fa-trash"></i> Delete</button>
         <a class="btn btn-sm btn-warning text-dark" asp-action="Edit" asp-route-id="@Model?.Id"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
     }
-    <a class="btn btn-sm btn-primary text-light" asp-action="Index"><i class="fa-solid fa-list"></i> Back to List</a>
 </div>
 
 @if (User.Identity.IsAuthenticated)

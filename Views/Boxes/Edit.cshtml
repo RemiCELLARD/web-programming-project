@@ -66,7 +66,7 @@
                                 <div class="input-group-text">
                                     <input class="form-check-input me-1" checked="checked" name="brickIds" type="checkbox" value="@(brick.Id)" id="brickIdCheck">
                                     <input class="visually-hidden" name="brickPrice@(brick.Id)" type="number" value="@(brick.BrickPrice)">
-                                    <label class="form-check-label ms-1" for="brickIdCheck" data-bs-toggle="tooltip" data-bs-html="true" title="<b>@(brick.BrickName)</b><br/><em>@(brick.BrickSize.GetDisplayName())</em><br/><em>@string.Format("{0:0.00}", brick.BrickPrice) EUR / Brick</em>">@(brick.BrickName) <i style='color:rgba(@(brick.BrickColorObj.BrickColorRed),@(brick.BrickColorObj.BrickColorGreen),@(brick.BrickColorObj.BrickColorBlue),@(brick.BrickColorObj.BrickColorAlpha))' class='fa-solid fa-stop me-2'></i></label>
+                                    <label class="form-check-label ms-1" for="brickIdCheck" data-bs-toggle="tooltip" data-bs-html="true" title="<b>@(brick.BrickName)</b><br/><em>Size : @(brick.BrickSize.GetDisplayName())</em><br/><em>@string.Format("{0:0.00}", brick.BrickPrice) EUR / Brick</em>">@(brick.BrickName) <i style='color:rgba(@(brick.BrickColorObj.BrickColorRed),@(brick.BrickColorObj.BrickColorGreen),@(brick.BrickColorObj.BrickColorBlue),@(brick.BrickColorObj.BrickColorAlpha))' class='fa-solid fa-stop me-2'></i></label>
                                 </div>
                                 <input type="number" class="form-control" step="1" min="1" value="@(pack.BrickInBoxQuantity)" name="brickAmount@(brick.Id)" oninput="updateAmountOfBrick()" aria-label="Amount">
                             }
@@ -75,7 +75,7 @@
                                 <div class="input-group-text">
                                     <input class="form-check-input me-1" name="brickIds" type="checkbox" value="@(brick.Id)" id="brickIdCheck">
                                     <input class="visually-hidden" name="brickPrice@(brick.Id)" type="number" value="@(brick.BrickPrice)">
-                                    <label class="form-check-label ms-1" for="brickIdCheck" data-bs-toggle="tooltip" data-bs-html="true" title="<b>@(brick.BrickName)</b><br/><em>@(brick.BrickSize.GetDisplayName())</em><br/><em>@string.Format("{0:0.00}", brick.BrickPrice) EUR</em>">@(brick.BrickName) <i style='color:rgba(@(brick.BrickColorObj.BrickColorRed),@(brick.BrickColorObj.BrickColorGreen),@(brick.BrickColorObj.BrickColorBlue),@(brick.BrickColorObj.BrickColorAlpha))' class='fa-solid fa-stop me-2'></i></label>
+                                    <label class="form-check-label ms-1" for="brickIdCheck" data-bs-toggle="tooltip" data-bs-html="true" title="<b>@(brick.BrickName)</b><br/><em>Size : @(brick.BrickSize.GetDisplayName())</em><br/><em>@string.Format("{0:0.00}", brick.BrickPrice) EUR</em>">@(brick.BrickName) <i style='color:rgba(@(brick.BrickColorObj.BrickColorRed),@(brick.BrickColorObj.BrickColorGreen),@(brick.BrickColorObj.BrickColorBlue),@(brick.BrickColorObj.BrickColorAlpha))' class='fa-solid fa-stop me-2'></i></label>
                                 </div>
                                 <input type="number" class="form-control" step="1" min="1" disabled name="brickAmount@(brick.Id)" oninput="updateAmountOfBrick()" aria-label="Amount">
                             }
