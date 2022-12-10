@@ -24,9 +24,40 @@ namespace Web_Programming_Project.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(int? c)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            ViewResult result;
+            if(c is null)
+            {
+                result = View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            }
+            else
+            {
+                ViewData["errorCode"] = c;
+                string message = "";
+                string image = "";
+                switch (c)
+                {
+                    case 400:
+                    case 404:
+                        message = "Exploring this page does not lead anywhere.";
+                        image = "error_not_found.png";
+                        break;
+                    case 401:
+                    case 403:
+                        message = "Access to this page requires you to have additional rights.";
+                        image = "error_access_denied.png";
+                        break;
+                    default:
+                        message = "Exploring this page does not lead anywhere.";
+                        image = "error_default.png";
+                        break;
+                }
+                ViewData["errorMessage"] = message;
+                ViewData["errorImage"] = image;
+                result = View("Error");
+            }
+            return result;
         }
     }
 }

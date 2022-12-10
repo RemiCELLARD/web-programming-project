@@ -1,0 +1,15 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="row align-items-center">
+    <div class="col-3">
+        <img src="@("~/imgs/"+ViewData["errorImage"])" asp-append-version="true" class="img-fluid" alt="...">
+    </div>
+    <div class="col-1"></div>
+    <div class="col-8">
+        <h1>@ViewData["errorCode"]</h1>
+        <p class="mt-2 mb-5">@ViewData["errorMessage"]</p>
+        <button class="btn bg-lego" onclick="window.history.back()"><i class="fa-solid fa-arrow-left"></i> Go back</button>
+    </div>
+</div>
