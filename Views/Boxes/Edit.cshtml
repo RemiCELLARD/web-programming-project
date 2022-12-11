@@ -129,6 +129,11 @@
             $boxes.each(function () {
                 var brickId = $(this).val();
                 quantity = $(`input[name="brickAmount${brickId}"]`).val();
+                if (quantity == "")
+                {
+                    quantity = 1;
+                    $(`input[name="brickAmount${brickId}"]`).val(quantity);
+                }
                 price = $(`input[name="brickPrice${brickId}"]`).val();
                 updateTotalPrice((quantity * price));
             });
