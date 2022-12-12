@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ namespace Web_Programming_Project.Controllers
         // GET: BrickColors
         public async Task<IActionResult> Index(string brickColorSearch = "", int brickColorRedSearch = -1, int brickColorGreenSearch = -1, int brickColorBlueSearch = -1, float brickColorAlphaSearch = -1.0f, string prevBrickColorSort = "up")
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             ViewData["prevBrickColorSort"] = prevBrickColorSort;
             ViewData["brickColorSearch"] = brickColorSearch;
             ViewData["brickColorFilterRed"] = brickColorRedSearch;
@@ -47,28 +49,11 @@ namespace Web_Programming_Project.Controllers
             return PartialView("_BrickColorsCard", await GetBrickColorsAsync(brickColorSearch, brickColorRedSearch, brickColorGreenSearch, brickColorBlueSearch, brickColorAlphaSearch, prevBrickColorSort));
         }
 
-        // GET: BrickColors/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.BrickColor == null)
-            {
-                return NotFound();
-            }
-
-            var brickColor = await _context.BrickColor
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (brickColor == null)
-            {
-                return NotFound();
-            }
-
-            return View(brickColor);
-        }
-
         // GET: BrickColors/Create
         [Authorize]
         public IActionResult Create()
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             return View();
         }
 
@@ -80,6 +65,7 @@ namespace Web_Programming_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,BrickColorName,BrickColorRed,BrickColorGreen,BrickColorBlue,BrickColorAlpha")] BrickColor brickColor)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (ModelState.IsValid)
             {
                 _context.Add(brickColor);
@@ -96,6 +82,7 @@ namespace Web_Programming_Project.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (id == null || _context.BrickColor == null)
             {
                 return NotFound();
@@ -117,6 +104,7 @@ namespace Web_Programming_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BrickColorName,BrickColorRed,BrickColorGreen,BrickColorBlue,BrickColorAlpha")] BrickColor brickColor)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (id != brickColor.Id)
             {
                 return NotFound();

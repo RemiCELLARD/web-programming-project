@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ namespace Web_Programming_Project.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string brickSearch = "", int brickSize = 0, int brickColorId = -1, string prevBrickPriceSort = "up")
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             ViewData["prevBrickPriceSort"] = prevBrickPriceSort;
             ViewData["brickSearch"] = brickSearch;
             ViewData["brickColorId"] = brickColorId;
@@ -48,29 +50,11 @@ namespace Web_Programming_Project.Controllers
             return PartialView("_BricksTable", await GetBrickAsync(brickSearch, brickSize, brickColorId, prevBrickPriceSort));
         }
 
-        // GET: Bricks/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Brick == null)
-            {
-                return NotFound();
-            }
-
-            var brick = await _context.Brick
-                .Include(b => b.BrickColorObj)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (brick == null)
-            {
-                return NotFound();
-            }
-
-            return View(brick);
-        }
-
         // GET: Bricks/Create
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             ViewData["BrickColors"] = await _context.BrickColor.ToArrayAsync();
             ViewData["BrickColorId"] = -1;
             return View();
@@ -83,6 +67,7 @@ namespace Web_Programming_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,BrickName,BrickColorId,BrickSize,BrickPrice")] Brick brick)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (ModelState.IsValid)
             {
                 _context.Add(brick);
@@ -101,6 +86,7 @@ namespace Web_Programming_Project.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (id == null || _context.Brick == null)
             {
                 return NotFound();
@@ -123,6 +109,7 @@ namespace Web_Programming_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BrickName,BrickColorId,BrickSize,BrickPrice")] Brick brick)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (id != brick.Id)
             {
                 return NotFound();

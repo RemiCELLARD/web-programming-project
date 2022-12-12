@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
@@ -36,6 +37,7 @@ namespace Web_Programming_Project.Controllers
         // GET: Themes
         public async Task<IActionResult> Index(string themeSearch = "", int themeAgeRange = 0, string prevThemeSort = "up") 
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             ViewData["prevThemeSort"] = prevThemeSort;
             ViewData["themeSearch"] = themeSearch;
             ViewData["themeAgeRange"] = themeAgeRange.ToString();
@@ -57,28 +59,11 @@ namespace Web_Programming_Project.Controllers
             return PartialView("_ThemesCard", await GetThemeAsync(themeSearch, themeAgeRange, prevThemeSort));
         }
 
-        // GET: Themes/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Theme == null)
-            {
-                return NotFound();
-            }
-
-            var theme = await _context.Theme
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (theme == null)
-            {
-                return NotFound();
-            }
-
-            return View(theme);
-        }
-
         // GET: Themes/Create
         [Authorize]
         public IActionResult Create()
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             return View();
         }
 
@@ -90,6 +75,7 @@ namespace Web_Programming_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ThemeName,ThemeDescription,ThemeImgFile,ThemeAgeCategory")] Theme theme)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (ModelState.IsValid)
             {
                 theme.ThemeImgName = await _context.ImgManager.UploadImage(_themeImgRoot, theme.ThemeImgFile);
@@ -107,6 +93,7 @@ namespace Web_Programming_Project.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (id == null || _context.Theme == null)
             {
                 return NotFound();
@@ -128,6 +115,7 @@ namespace Web_Programming_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ThemeName,ThemeDescription,ThemeImgName,ThemeImgFile,ThemeAgeCategory")] Theme theme)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (id != theme.Id)
             {
                 return NotFound();

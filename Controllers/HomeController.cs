@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Web_Programming_Project.Models;
 
@@ -15,11 +16,13 @@ namespace Web_Programming_Project.Controllers
 
         public IActionResult Index()
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             return View();
         }
 
         public IActionResult Privacy()
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             return View();
         }
 
@@ -27,7 +30,8 @@ namespace Web_Programming_Project.Controllers
         public IActionResult Error(int? c)
         {
             ViewResult result;
-            if(c is null)
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
+            if (c is null)
             {
                 result = View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
             }

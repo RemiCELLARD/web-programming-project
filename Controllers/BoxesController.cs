@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ namespace Web_Programming_Project.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string boxSearch = "", int boxAgeRange = 0, int boxThemeId = -1, string prevBoxSort = "up")
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             ViewData["prevBoxSort"] = prevBoxSort;
             ViewData["boxSearch"] = boxSearch;
             ViewData["boxThemeId"] = boxThemeId;
@@ -57,6 +59,7 @@ namespace Web_Programming_Project.Controllers
         // GET: Boxes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (id == null || _context.Box == null)
             {
                 return NotFound();
@@ -84,6 +87,7 @@ namespace Web_Programming_Project.Controllers
         [Authorize]
         public async Task<IActionResult> Create()
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             ViewData["BoxThemeId"] = new SelectList(_context.Theme, "Id", "ThemeName");
             ViewBag.Bricks = await _context.Brick.Include(b => b.BrickColorObj).ToListAsync();
             return View();
@@ -97,6 +101,7 @@ namespace Web_Programming_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxImgFile,BoxDescription")] Box box, string[] brickIds)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (ModelState.IsValid)
             {
                 box.BoxImgName = await _context.ImgManager.UploadImage(_boxImgRoot, box.BoxImgFile);
@@ -119,6 +124,7 @@ namespace Web_Programming_Project.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (id == null || _context.Box == null)
             {
                 return NotFound();
@@ -152,6 +158,7 @@ namespace Web_Programming_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BoxName,BoxThemeId,BoxAgeCategory,BoxImgName,BoxImgFile,BoxDescription")] Box box, string[] brickIds)
         {
+            ViewData["AbsoluteUri"] = Request.GetDisplayUrl();
             if (id != box.Id)
             {
                 return NotFound();
